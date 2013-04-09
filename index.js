@@ -2,7 +2,10 @@
  * Module Dependencies.
  */
 
-var fs = require('fs');
+var fs = require('fs')
+  , cheerio = require('cheerio')
+  , $ = null
+  , context = require('./lib/context');
 
 /**
  * Export the `view` function.
@@ -45,13 +48,60 @@ view.clear = function() {
 };
 
 /**
+ * List of attributes
+ * @type {Array}
+ */
+
+view.attr = {
+    //'view': 'view'
+    'data-text': 'dataText'
+  , 'each': 'each'
+  , 'on-click': 'onClick'
+};
+
+view.methods = {};
+
+/**
+ * Hold a reference to the context.
+ * @type {Object}
+ */
+
+view.context = {};
+
+/**
  * Renders a view.
  * @param  {String} name View name
  */
 
 view.render = function(name) {
+  // increment the render count.
   view.render.count++;
+  // Load the template to be rendered
+  var template = view.template(name);
 
+  var compiled = view.compile(template);
+  if (view.context.res)
+    view.context.res.send(compiled);
+};
+
+/**
+ * Compile the template.
+ * @param  {String} template view
+ */
+
+view.compile = function(template) {
+
+  // Look for views.
+  var views = ['body'];
+
+  $ = cheerio.load(template);
+
+  $('[view]').each(function() {
+    // Render each view independently
+    view(this.attr('view')).render();
+  });
+
+  return 1;
 };
 
 /**
@@ -69,6 +119,11 @@ view.render.count = 0;
 view.template = function(name, path) {
   name = name.replace(/\./, '/') + '.html';
   var lookup = path || view.template.lookup;
+  // XXX: Implement view caching.
+  //      This synchronous call
+  //      will only happen
+  //      once for every view.
+  //      (unless the file changes.)
   return fs.readFileSync(lookup + name, 'utf-8');
 };
 
@@ -77,7 +132,7 @@ view.template = function(name, path) {
  * @type {String}
  */
 
-view.template.lookup = process.cwd() + '/';
+view.template.lookup = process.cwd() + '/templates/';
 
 /**
  * Registry of all the views.
@@ -96,6 +151,8 @@ function View(options) {
   this.name = options.name;
   // childView for the current view.
   this.childView = null;
+  this.elem = null;
+  this.ctx = {};
 }
 
 /**
@@ -118,4 +175,9 @@ View.prototype.child = function(child) {
 View.prototype.swap = function(name) {
   this.childView = view(name);
   return this;
+};
+
+View.prototype.render = function() {
+  this.elem = $('[view='+this.name+']');
+  var self = this;
 };

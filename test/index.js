@@ -1,12 +1,13 @@
 var assert = require('assert')
   , view   = require('./../')
-  , fs     = require('fs');
-
+  , fs     = require('fs')
+  , context = require('./../lib/context');
 
 describe('view', function() {
 
   afterEach(function() {
     view.clear();
+    context.clear();
   });
 
   it('should create a new view', function() {
@@ -45,6 +46,7 @@ describe('view', function() {
   it('should load the render method.', function() {
 
     var num = view.render.count;
+    view.template.lookup = process.cwd() + '/test/templates/';
     view.render('index');
     assert(num === 0);
     assert(view.render.count === 1);
@@ -70,6 +72,35 @@ describe('view', function() {
 
     assert(view('body').childView.childView === view('action'));
 
+  });
+
+  it('creates a new context', function() {
+    context('global');
+    assert(context.ctx['global'] === context('global'));
+  });
+
+  it('creates a child view', function() {
+    context('global')
+      .child('loopOne')
+      .child('loopTwo');
+
+    assert(context('global').children['loopOne'] === context('loopOne'));
+    assert(context('global').children['loopTwo'] === context('loopTwo'))
+  });
+
+  it('should set & access vars from current context', function() {
+    context('global')
+      .set('var', 1);
+
+    assert(context('global').get('var') === 1);
+  });
+
+  it('should set & access vars from current context (namespacing).', function() {
+    context('global')
+      .set('var.one', 1)
+      .set('va2r.two', 2);
+    assert(context('global').get('var.one') === 1);
+    assert(context('global').get('va2r.two') === 2);
   });
 
 });
