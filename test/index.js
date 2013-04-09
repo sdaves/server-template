@@ -1,5 +1,6 @@
 var assert = require('assert')
-  , view   = require('./../');
+  , view   = require('./../')
+  , fs     = require('fs');
 
 
 describe('view', function() {
@@ -39,6 +40,22 @@ describe('view', function() {
     view('index').swap('about');
 
     assert(view('index').childView === view('about'));
+  });
+
+  it('should load the render method.', function() {
+
+    var num = view.render.count;
+    view.render('index');
+    assert(num === 0);
+    assert(view.render.count === 1);
+
+  });
+
+  it('should load the template file.', function() {
+
+    var template = fs.readFileSync(process.cwd() + '/test/templates/' + 'index.html', 'utf-8');
+
+    assert(view.template('index', process.cwd() + '/test/templates/') === template);
   });
 
 });
