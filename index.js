@@ -4,6 +4,7 @@
  */
 
 module.exports = view;
+module.exports.View = View;
 
 /**
  * Creates a new view instance.
@@ -27,6 +28,13 @@ function view(name) {
   // Return a new view instance.
   return view.views[name] = instance;
 }
+
+/**
+ * Clears the references of all the views.
+ */
+view.clear = function() {
+  view.views = {};
+};
 
 /**
  * Registry of all the views.
@@ -54,7 +62,7 @@ function View(options) {
  */
 
 View.prototype.child = function(child) {
-  this.childView = child;
+  this.childView = view(child);
   return this;
 };
 
