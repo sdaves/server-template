@@ -58,4 +58,18 @@ describe('view', function() {
     assert(view.template('index', process.cwd() + '/test/templates/') === template);
   });
 
+  it('should have hierarchical child views.', function() {
+
+    view('body')
+      .child('home');
+
+    view('home')
+      .child('action');
+
+    view('action');
+
+    assert(view('body').childView.childView === view('action'));
+
+  });
+
 });
