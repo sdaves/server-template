@@ -122,6 +122,8 @@ view.compile = function(template) {
      footer:not([view]),\
      summary:not([view]),\
      article:not([view])\
+     ul:not([view])\
+     table:not([view])\
     ');
 
   outer.find('[each]')
@@ -143,6 +145,8 @@ view.compile = function(template) {
         var obj = context(source).vars[i];
         var ctxName = malloc + '.' + i;
         var clone = this.clone();
+        clone.removeAttr('style');
+        clone.removeAttr('data-trigger');
         // Create a new context for the loop index.
         context(ctxName, source)
           .object(obj);
@@ -159,7 +163,7 @@ view.compile = function(template) {
       }
     }
 
-    console.log(this.toString());
+    //console.log(this.toString());
 
   });
 
@@ -168,7 +172,7 @@ view.compile = function(template) {
   }
 
 
-  return 1;
+  return $.html();
 };
 
 /**
