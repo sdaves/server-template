@@ -162,14 +162,10 @@ view.compile = function(template) {
           // scope.
           .object(obj);
 
-        // Find all the `data-text` attributes.
-        // XXX: Reform this into the `text` function so that we can reuse it.
-        clone.find('[data-text]').each(function() {
-            var keys = this.attr('data-text').split('.');
-            // Remove the first element of the keys.
-            keys.splice(0, 1);
-            // Replace the html element.
-            this.html(context(ctxName).get(keys));
+
+        text(clone, context(ctxName), function(keys) {
+          keys.splice(0, 1);
+          return keys;
         });
 
         this.append(clone);
@@ -178,8 +174,15 @@ view.compile = function(template) {
 
   });
 
-  function text(elem, ctx) {
-
+  function text(elem, ctx, filter) {
+    if (typeof filter !== 'function') throw new Error('Filters need to be a function.');
+    elem.find('[data-text]').each(function() {
+      var keys = this.attr('data-text').split('.');
+      keys = filter(keys);
+      if (keys) {
+        this.html(ctx.get(keys));
+      }
+    });
   }
 
 
