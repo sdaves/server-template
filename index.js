@@ -90,16 +90,63 @@ view.render = function(name) {
  */
 
 view.compile = function(template) {
+  // Create a new context:
+  context('global')
+    .set('users', [
+      { name: 'John' }
+    ])
 
   // Look for views.
   var views = ['body'];
 
   $ = cheerio.load(template);
-
+  // XXX: Need to figure out how to render the other attributes
+  //      that are not within a view.
+  //      1) We could remove all the views, render the attributes, then
+  //         assemble the views back again.
   $('[view]').each(function() {
+    this.addClass('view', true);
     // Render each view independently
     view(this.attr('view')).render();
+    this.attr('rendering', false);
   });
+
+
+
+  // Exclude any views.
+  var outer = $('div:not([view]),\
+     span:not([view]),\
+     section:not([view]),\
+     nav:not([view]),\
+     header:not([view]),\
+     footer:not([view]),\
+     summary:not([view]),\
+     article:not([view])\
+    ');
+
+  outer.find('[each]')
+  .each(function() {
+    // Create a new context.
+    var attr = this.attr('each').split(' ')
+      , source = attr[2];
+
+    context(source)
+      .array(context('global').get('users'));
+
+    console.log(context(source));
+
+    if (context(source).length() >= 1) {
+      for (var i = 0; i < context(source).length(); i++) {
+        //console.log(context(attr[2]).vars[i]);
+      }
+    }
+
+  });
+
+  function text(elem, ctx) {
+
+  }
+
 
   return 1;
 };
