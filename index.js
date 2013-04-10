@@ -2,10 +2,10 @@
  * Module Dependencies.
  */
 
-var fs = require('fs')
-  , cheerio = require('cheerio')
-  , $ = null
-  , context = require('./lib/context');
+var fs = require('fs'),
+  cheerio = require('cheerio'),
+  $ = null,
+  context = require('./lib/context');
 
 /**
  * Export the `view` function.
@@ -27,8 +27,7 @@ function view(name) {
 
   // Return a view instance if
   // it already exists.
-  if (view.views[name])
-    return view.views[name];
+  if (view.views[name]) return view.views[name];
 
   // Create a new view instance.
   var instance = new View({
@@ -53,10 +52,10 @@ view.clear = function() {
  */
 
 view.attr = {
-    //'view': 'view'
-    'data-text': 'dataText'
-  , 'each': 'each'
-  , 'on-click': 'onClick'
+  //'view': 'view'
+  'data-text': 'dataText',
+  'each': 'each',
+  'on-click': 'onClick'
 };
 
 view.methods = {};
@@ -80,8 +79,7 @@ view.render = function(name) {
   var template = view.template(name);
 
   var compiled = view.compile(template);
-  if (view.context.res)
-    view.context.res.send(compiled);
+  if (view.context.res) view.context.res.send(compiled);
 };
 
 /**
@@ -90,91 +88,38 @@ view.render = function(name) {
  */
 
 view.compile = function(template) {
+  var methods = {};
+
   // Create a new context:
   context('global')
-    .set('users', [
-      { name: 'John' },
-      { name: 'Julie' },
-      { name: 'Dod' }
-    ])
+    .set('users', [{
+    name: 'John'
+  }, {
+    name: 'Julie'
+  }, {
+    name: 'Dod'
+  }])
+    .set('users2', [{
+    name: 'Kate'
+  }, {
+    name: 'Ash'
+  }, {
+    name: 'Roney'
+  }])
 
   // Look for views.
   var views = ['body'];
 
   $ = cheerio.load(template);
-  // XXX: Need to figure out how to render the other attributes
-  //      that are not within a view.
-  //      1) We could remove all the views, render the attributes, then
-  //         assemble the views back again.
-  $('[view]').each(function() {
-    this.addClass('view', true);
-    // Render each view independently
-    view(this.attr('view')).render();
-    this.attr('rendering', false);
-  });
 
+  /**
+   * Find and bind `data-text` attributes.
+   * @param  {Elem} elem DOM element.
+   * @param  {Context} ctx current context.
+   * @param  {Function} filter Filter function to run against `keys`
+   */
 
-
-  // Exclude any views.
-  var outer = $('div:not([view]),\
-     span:not([view]),\
-     section:not([view]),\
-     nav:not([view]),\
-     header:not([view]),\
-     footer:not([view]),\
-     summary:not([view]),\
-     article:not([view]),\
-     ul:not([view])\
-    ');
-
-  outer.find('[each]')
-  .each(function() {
-
-    // Create a new context.
-    var attr = this.attr('each').split(' ')
-      , source = attr[2]
-      , malloc = attr[0];
-
-    context(source, 'global')
-      .array(context('global').get(source));
-
-    if (context(source).length() >= 0) {
-      this.attr('style', 'display:none');
-      this.attr('template', true);
-
-      // Clone it before we start appending to it. Otherwise we get a replication bug.
-      var original = this.clone();
-      // Remove a few attributes.
-      original.removeAttr('style');
-      original.removeAttr('template');
-      // Loop through the context vars.
-      for (var i = 0; i < context(source).length(); i++) {
-        // Get the current object within the context. source = `user in users` <-- users
-        var obj = context(source).vars[i];
-        // Form a new context name for each iteration
-        var ctxName = malloc + '.' + i;
-        // Clone the original clone again, that way we get a clean copy.
-        var clone = original.clone();
-        // Create a new context for the loop index.
-        context(ctxName, source)
-          // Add an object to the context.
-          // This will copy each key and value separately to the context
-          // scope.
-          .object(obj);
-
-
-        text(clone, context(ctxName), function(keys) {
-          keys.splice(0, 1);
-          return keys;
-        });
-
-        this.append(clone);
-      }
-    }
-
-  });
-
-  function text(elem, ctx, filter) {
+  methods.text = function(elem, ctx, filter) {
     if (typeof filter !== 'function') throw new Error('Filters need to be a function.');
     elem.find('[data-text]').each(function() {
       var keys = this.attr('data-text').split('.');
@@ -183,8 +128,158 @@ view.compile = function(template) {
         this.html(ctx.get(keys));
       }
     });
-  }
+  };
 
+
+  methods.view = function(elem, ctx, filter) {
+
+    // Render elements outside any child views.
+    var outer = elem.find('\
+     div:not([view]),\
+     span:not([view]),\
+     section:not([view]),\
+     nav:not([view]),\
+     header:not([view]),\
+     footer:not([view]),\
+     summary:not([view]),\
+     article:not([view]),\
+     table:not([view]),\
+     span:not([view]),\
+     a:not([view]),\
+     br:not([view]),\
+     hr:not([view])\
+    ');
+
+    if (outer.length !== 0) methods.each(outer, ctx);
+
+    // Render child views. (recursive)
+    elem.find('[view]').each(function() {
+      //methods.view(this, ctx, filter);
+    });
+
+  };
+
+  methods.each = function(elem, ctx) {
+    elem.find('[each]')
+      .each(function() {
+      // Create a new context.
+      var attr = this.attr('each').split(' '),
+        source = attr[2],
+        malloc = attr[0];
+
+      context(source, ctx.key)
+        .array(context(ctx.key).get(source));
+
+      if (context(source).length() >= 0) {
+        this.attr('style', 'display:none');
+        this.attr('template', true);
+
+        // Clone it before we start appending to it. Otherwise we get a replication bug.
+        var original = this.clone();
+        // Remove a few attributes.
+        original.removeAttr('style');
+        original.removeAttr('template');
+        // Loop through the context vars.
+        for (var i = 0; i < context(source).length(); i++) {
+          // Get the current object within the context. source = `user in users` <-- users
+          var obj = context(source).vars[i];
+          // Form a new context name for each iteration
+          var ctxName = malloc + '.' + i;
+          // Clone the original clone again, that way we get a clean copy.
+          var clone = original.clone();
+
+          // Create a new context for the loop index.
+          context(ctxName, source)
+          // Add an object to the context.
+          // This will copy each key and value separately to the context
+          // scope.
+          .object(obj);
+
+          methods.text(clone, context(ctxName), function(keys) {
+            keys.splice(0, 1);
+            return keys;
+          });
+
+          this.append(clone);
+        }
+      }
+
+    });
+  };
+
+  methods.view($('html'), context('global'));
+
+  // XXX: Need to figure out how to render the other attributes
+  //      that are not within a view.
+  //      1) We could remove all the views, render the attributes, then
+  //         assemble the views back again.
+  /**$('[view]').each(function() {
+    this.addClass('view', true);
+    // Render each view independently
+    view(this.attr('view')).render();
+    this.attr('rendering', false);
+  });**/
+
+
+
+  // Exclude any views.
+  // var outer = $('div:not([view]),\
+  //    span:not([view]),\
+  //    section:not([view]),\
+  //    nav:not([view]),\
+  //    header:not([view]),\
+  //    footer:not([view]),\
+  //    summary:not([view]),\
+  //    article:not([view]),\
+  //    ul:not([view])\
+  //   ');
+
+  // outer.find('[each]')
+  // .each(function() {
+
+  //   // Create a new context.
+  //   var attr = this.attr('each').split(' ')
+  //     , source = attr[2]
+  //     , malloc = attr[0];
+
+  //   context(source, 'global')
+  //     .array(context('global').get(source));
+
+  //   if (context(source).length() >= 0) {
+  //     this.attr('style', 'display:none');
+  //     this.attr('template', true);
+
+  //     // Clone it before we start appending to it. Otherwise we get a replication bug.
+  //     var original = this.clone();
+  //     // Remove a few attributes.
+  //     original.removeAttr('style');
+  //     original.removeAttr('template');
+  //     // Loop through the context vars.
+  //     for (var i = 0; i < context(source).length(); i++) {
+  //       // Get the current object within the context. source = `user in users` <-- users
+  //       var obj = context(source).vars[i];
+  //       // Form a new context name for each iteration
+  //       var ctxName = malloc + '.' + i;
+  //       // Clone the original clone again, that way we get a clean copy.
+  //       var clone = original.clone();
+  //       // Create a new context for the loop index.
+  //       context(ctxName, source)
+  //         // Add an object to the context.
+  //         // This will copy each key and value separately to the context
+  //         // scope.
+  //         .object(obj);
+
+
+  //       text(clone, context(ctxName), function(keys) {
+  //         keys.splice(0, 1);
+  //         return keys;
+  //       });
+
+  //       this.append(clone);
+  //     }
+  //   }
+
+  // });
 
   return $.html();
 };
@@ -263,6 +358,6 @@ View.prototype.swap = function(name) {
 };
 
 View.prototype.render = function() {
-  this.elem = $('[view='+this.name+']');
+  this.elem = $('[view=' + this.name + ']');
   var self = this;
 };
