@@ -92,6 +92,7 @@ view.compile = function(template) {
 
   // Create a new context:
   context('global')
+    .set('currentUser', 'TheHydroImpulse')
     .set('users', [{
     name: 'John'
   }, {
@@ -107,9 +108,6 @@ view.compile = function(template) {
     name: 'Roney'
   }])
 
-  // Look for views.
-  var views = ['body'];
-
   $ = cheerio.load(template);
 
   /**
@@ -120,20 +118,22 @@ view.compile = function(template) {
    */
 
   methods.text = function(elem, ctx, filter) {
-    if (typeof filter !== 'function') throw new Error('Filters need to be a function.');
+
     elem.find('[data-text]').each(function() {
       var keys = this.attr('data-text').split('.');
-      keys = filter(keys);
+
+      if (typeof filter === 'function')
+        keys = filter(keys);
+
       if (keys) {
         this.html(ctx.get(keys));
       }
     });
+
   };
 
 
   methods.view = function(elem, ctx, filter) {
-    var tags = [];
-
     elem.find('[view]').each(function() {
       this.after('<script type="text/hold"></script>');
     });
@@ -143,7 +143,12 @@ view.compile = function(template) {
 
     // Remove them.
     elem.find('[view]').remove();
+
+    // Render any [each] bindings.
     methods.each(elem, ctx);
+
+    // Render any [data-text] bindings.
+    methods.text(elem, ctx);
 
     // Replace the views.
     elem.find('script[type="text/hold"]').each(function(i, e) {
@@ -153,6 +158,8 @@ view.compile = function(template) {
 
     // Render child views. (recursive)
     elem.find('[view]').each(function() {
+      console.log(this.attr('view'));
+      view(this.attr('view')).rendering = true;
       methods.view(this, ctx, filter);
     });
   };
@@ -258,6 +265,7 @@ function View(options) {
   this.childView = null;
   this.elem = null;
   this.ctx = {};
+  this.rendering = false;
 }
 
 /**
