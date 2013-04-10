@@ -93,7 +93,9 @@ view.compile = function(template) {
   // Create a new context:
   context('global')
     .set('users', [
-      { name: 'John' }
+      { name: 'John' },
+      { name: 'Julie' },
+      { name: 'Dod' }
     ])
 
   // Look for views.
@@ -121,13 +123,13 @@ view.compile = function(template) {
      header:not([view]),\
      footer:not([view]),\
      summary:not([view]),\
-     article:not([view])\
+     article:not([view]),\
      ul:not([view])\
-     table:not([view])\
     ');
 
   outer.find('[each]')
   .each(function() {
+
     // Create a new context.
     var attr = this.attr('each').split(' ')
       , source = attr[2]
@@ -136,34 +138,33 @@ view.compile = function(template) {
     context(source, 'global')
       .array(context('global').get('users'));
 
-    //console.log(context(source));
-
     if (context(source).length() >= 1) {
       this.attr('style', 'display:none');
-      this.attr('data-trigger', true);
+      this.attr('template', true);
+      var original = this.clone();
       for (var i = 0; i < context(source).length(); i++) {
+
         var obj = context(source).vars[i];
         var ctxName = malloc + '.' + i;
-        var clone = this.clone();
+
+        var clone = original.clone();
         clone.removeAttr('style');
-        clone.removeAttr('data-trigger');
+        clone.removeAttr('template');
+
         // Create a new context for the loop index.
         context(ctxName, source)
           .object(obj);
 
-        // user.name = context('user').get('name')
+        console.log(clone.find('[data-text]').length);
+        console.log(clone.toString());
         clone.find('[data-text]').each(function() {
             var keys = this.attr('data-text').split('.');
-
             this.html(context(ctxName).get(keys[1]));
         });
 
         this.append(clone);
-
       }
     }
-
-    //console.log(this.toString());
 
   });
 
