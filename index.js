@@ -132,36 +132,35 @@ view.compile = function(template) {
 
 
   methods.view = function(elem, ctx, filter) {
+    var tags = [];
 
-    // Render elements outside any child views.
-    var outer = elem.find('\
-     div:not([view]),\
-     span:not([view]),\
-     section:not([view]),\
-     nav:not([view]),\
-     header:not([view]),\
-     footer:not([view]),\
-     summary:not([view]),\
-     article:not([view]),\
-     table:not([view]),\
-     span:not([view]),\
-     a:not([view]),\
-     br:not([view]),\
-     hr:not([view])\
-    ');
+    elem.find('[view]').each(function() {
+      this.after('<script type="text/hold"></script>');
+    });
 
-    if (outer.length !== 0) methods.each(outer, ctx);
+    // Cache the views.
+    var viewCache = elem.find('[view]');
+
+    // Remove them.
+    elem.find('[view]').remove();
+    methods.each(elem, ctx);
+
+    // Replace the views.
+    elem.find('script[type="text/hold"]').each(function(i, e) {
+      this.after($(viewCache[i]).toString());
+      this.remove();
+    });
 
     // Render child views. (recursive)
     elem.find('[view]').each(function() {
-      //methods.view(this, ctx, filter);
+      methods.view(this, ctx, filter);
     });
-
   };
 
   methods.each = function(elem, ctx) {
     elem.find('[each]')
       .each(function() {
+
       // Create a new context.
       var attr = this.attr('each').split(' '),
         source = attr[2],
@@ -199,7 +198,6 @@ view.compile = function(template) {
             keys.splice(0, 1);
             return keys;
           });
-
           this.append(clone);
         }
       }
