@@ -136,30 +136,40 @@ view.compile = function(template) {
       , malloc = attr[0];
 
     context(source, 'global')
-      .array(context('global').get('users'));
+      .array(context('global').get(source));
 
-    if (context(source).length() >= 1) {
+    if (context(source).length() >= 0) {
       this.attr('style', 'display:none');
       this.attr('template', true);
+
+      // Clone it before we start appending to it. Otherwise we get a replication bug.
       var original = this.clone();
+      // Remove a few attributes.
+      original.removeAttr('style');
+      original.removeAttr('template');
+      // Loop through the context vars.
       for (var i = 0; i < context(source).length(); i++) {
-
+        // Get the current object within the context. source = `user in users` <-- users
         var obj = context(source).vars[i];
+        // Form a new context name for each iteration
         var ctxName = malloc + '.' + i;
-
+        // Clone the original clone again, that way we get a clean copy.
         var clone = original.clone();
-        clone.removeAttr('style');
-        clone.removeAttr('template');
-
         // Create a new context for the loop index.
         context(ctxName, source)
+          // Add an object to the context.
+          // This will copy each key and value separately to the context
+          // scope.
           .object(obj);
 
-        console.log(clone.find('[data-text]').length);
-        console.log(clone.toString());
+        // Find all the `data-text` attributes.
+        // XXX: Reform this into the `text` function so that we can reuse it.
         clone.find('[data-text]').each(function() {
             var keys = this.attr('data-text').split('.');
-            this.html(context(ctxName).get(keys[1]));
+            // Remove the first element of the keys.
+            keys.splice(0, 1);
+            // Replace the html element.
+            this.html(context(ctxName).get(keys));
         });
 
         this.append(clone);
