@@ -128,18 +128,38 @@ view.compile = function(template) {
   .each(function() {
     // Create a new context.
     var attr = this.attr('each').split(' ')
-      , source = attr[2];
+      , source = attr[2]
+      , malloc = attr[0];
 
-    context(source)
+    context(source, 'global')
       .array(context('global').get('users'));
 
-    console.log(context(source));
+    //console.log(context(source));
 
     if (context(source).length() >= 1) {
+      this.attr('style', 'display:none');
+      this.attr('data-trigger', true);
       for (var i = 0; i < context(source).length(); i++) {
-        //console.log(context(attr[2]).vars[i]);
+        var obj = context(source).vars[i];
+        var ctxName = malloc + '.' + i;
+        var clone = this.clone();
+        // Create a new context for the loop index.
+        context(ctxName, source)
+          .object(obj);
+
+        // user.name = context('user').get('name')
+        clone.find('[data-text]').each(function() {
+            var keys = this.attr('data-text').split('.');
+
+            this.html(context(ctxName).get(keys[1]));
+        });
+
+        this.append(clone);
+
       }
     }
+
+    console.log(this.toString());
 
   });
 
