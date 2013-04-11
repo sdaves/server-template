@@ -191,18 +191,15 @@ function findPlaceHolders(e, isChild){
 }
 
 /**
- * Find and bind `data-text` attributes.
+ * Replaces a DOM's content.
  *
- * @param  {Elem} elem DOM element.
- * @param  {Context} ctx current context.
- * @param  {Function} filter Filter function to run against `keys`
+ * @return {[type]} [description]
  */
-
-exports.bindings.text = function(elem, ctx, filter){
+function content(elem, ctx, func, filter) {
   // Find all the elements with the attribute `data-text`
-  elem.find('[data-text]').each(function(){
+  elem.find('[data-'+func+']').each(function(){
     // Get the attribute value and split by "."
-    var keys = this.attr('data-text').split('.');
+    var keys = this.attr('data-'+func+'').split('.');
     // Run a filter against the `keys` variable.
     // Some use cases need to remove the first index to match the
     // context.
@@ -211,9 +208,32 @@ exports.bindings.text = function(elem, ctx, filter){
     if (keys) {
       // Replace the html with the contexts of the key within the
       // current context `ctx`
-      this.text(ctx.get(keys));
+      this[func](ctx.get(keys));
     }
   });
+}
+
+/**
+ * Find and bind `data-text` attributes.
+ *
+ * @param  {Elem} elem DOM element.
+ * @param  {Context} ctx current context.
+ * @param  {Function} filter Filter function to run against `keys`
+ */
+
+exports.bindings.text = function(elem, ctx, filter){
+  content(elem, ctx, 'text', filter);
+};
+
+/**
+ * HTML
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.html = function(elem, ctx, filter) {
+  content(elem, ctx, 'html', filter);
 };
 
 /**
@@ -383,18 +403,6 @@ exports.bindings.show = function(elem, ctx) {
  */
 
 exports.bindings.hide = function(elem, ctx) {
-  // XXX
-
-};
-
-/**
- * HTML
- *
- * @param  {Object} elem Cheerio Element
- * @param  {Object} ctx  Context
- */
-
-exports.bindings.html = function(elem, ctx) {
   // XXX
 
 };
