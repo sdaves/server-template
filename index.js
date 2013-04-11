@@ -1,22 +1,30 @@
+
 /**
  * Module Dependencies.
  */
 
-var fs = require('fs'),
-  cheerio = require('cheerio'),
-  $ = null,
-  context = require('./lib/context');
+var fs = require('fs')
+  , cheerio = require('cheerio')
+  , context = require('./lib/context')
+  , $ = null;
 
 /**
- * Export the `view` function.
+ * Expose `view`.
+ *
  * @type {Function}
  */
 
 module.exports = view;
+
+/**
+ * Expose `View`.
+ */
+
 module.exports.View = View;
 
 /**
- * Creates a new view instance.
+ * Create a new view instance.
+ *
  * @param  {String} name View name
  * @return {View}   View instance.
  */
@@ -42,12 +50,13 @@ function view(name) {
  * Clears the references of all the views.
  */
 
-view.clear = function() {
+view.clear = function(){
   view.views = {};
 };
 
 /**
- * List of attributes
+ * List of attributes.
+ *
  * @type {Array}
  */
 
@@ -62,6 +71,7 @@ view.methods = {};
 
 /**
  * Hold a reference to the context.
+ *
  * @type {Object}
  */
 
@@ -69,10 +79,11 @@ view.context = {};
 
 /**
  * Renders a view.
+ *
  * @param  {String} name View name
  */
 
-view.render = function(name) {
+view.render = function(name){
   // increment the render count.
   view.render.count++;
   // Load the template to be rendered
@@ -84,10 +95,11 @@ view.render = function(name) {
 
 /**
  * Compile the template.
+ *
  * @param  {String} template view
  */
 
-view.compile = function(template) {
+view.compile = function(template){
   var methods = {};
 
   // Create a new global context if it doesn't already exist.
@@ -103,25 +115,22 @@ view.compile = function(template) {
    * @param  {Function} filter Filter function to run against `keys`
    */
 
-  methods.text = function(elem, ctx, filter) {
-
+  methods.text = function(elem, ctx, filter){
     // Find all the elements with the attribute `data-text`
-    elem.find('[data-text]').each(function() {
+    elem.find('[data-text]').each(function(){
       // Get the attribute value and split by "."
       var keys = this.attr('data-text').split('.');
       // Run a filter against the `keys` variable.
       // Some use cases need to remove the first index to match the
       // context.
-      if (typeof filter === 'function') keys = filter(keys);
+      if ('function' == typeof filter) keys = filter(keys);
       // If keys is still valid.
       if (keys) {
         // Replace the html with the contexts of the key within the
         // current context `ctx`
         this.html(ctx.get(keys));
       }
-
     });
-
   };
 
   /**
@@ -130,10 +139,9 @@ view.compile = function(template) {
    * @param  {Context} ctx  Current Context
    */
 
-  methods.view = function(elem, ctx) {
-
+  methods.view = function(elem, ctx){
     // Find all the elements that are defined as views.
-    elem.find('[view]').each(function() {
+    elem.find('[view]').each(function(){
       // Insert a new script tag as a placeholder after the view.
       this.after('<script type="text/viewhold" data-view="' + this.attr('view') + '"></script>');
     });
@@ -153,7 +161,6 @@ view.compile = function(template) {
         // fill the viewName (key) with the appropriate element value.
         if (viewName) viewCache[viewName] = val;
       }
-
     }
 
     // Find all the views and remove them. (We will replace them later.)
@@ -201,16 +208,14 @@ view.compile = function(template) {
 
       // If viewholds is still valid.
       if (viewholds) {
-
         // Loop through the viewholds.
         for (var viewKey in viewholds) {
-
           // Only access valid keys.
           if (viewholds.hasOwnProperty(viewKey)) {
             var cachedView = viewholds[viewKey];
 
             // Only if the cachedView is valid.
-            if (cachedView && typeof cachedView === "object") {
+            if (cachedView && 'object' == typeof cachedView) {
               // DOMify the cachedView.
               cachedView = $(cachedView);
 
@@ -226,31 +231,23 @@ view.compile = function(template) {
               var subScripts = viewElement.find('script[type="text/viewhold"]');
               if (subScripts) findPlaceHolders(subScripts, true);
             }
-
           }
-
         }
-
       }
-
     }
 
     // Render child views. (recursively)
-    elem.find('[view]').each(function() {
+    elem.find('[view]').each(function(){
       methods.view(this, ctx);
     });
-
   };
 
-  methods.each = function(elem, ctx) {
-
-    elem.find('[each]')
-      .each(function() {
-
+  methods.each = function(elem, ctx){
+    elem.find('[each]').each(function(){
       // Create a new context.
-      var attr = this.attr('each').split(' '),
-        source = attr[2],
-        malloc = attr[0];
+      var attr = this.attr('each').split(' ')
+        , source = attr[2]
+        , malloc = attr[0];
 
       context(source, ctx.key)
         .array(context(ctx.key).get(source));
@@ -265,7 +262,7 @@ view.compile = function(template) {
         original.removeAttr('style');
         original.removeAttr('template');
         // Loop through the context vars.
-        for (var i = 0; i < context(source).length(); i++) {
+        for (var i = 0, n = context(source).length(); i < n; i++) {
           // Get the current object within the context. source = `user in users` <-- users
           var obj = context(source).vars[i];
           // Form a new context name for each iteration
@@ -282,7 +279,7 @@ view.compile = function(template) {
 
           // Replace data-text with the appropriate value from
           // the specified context.
-          methods.text(clone, context(ctxName), function(keys) {
+          methods.text(clone, context(ctxName), function(keys){
             // Remove the first index.
             keys.splice(0, 1);
             return keys;
@@ -292,7 +289,6 @@ view.compile = function(template) {
           this.append(clone);
         }
       }
-
     });
   };
 
@@ -302,6 +298,7 @@ view.compile = function(template) {
 
 /**
  * Hold the render count.
+ *
  * @type {Number}
  */
 
@@ -309,10 +306,11 @@ view.render.count = 0;
 
 /**
  * Return the specified template.
+ *
  * @param  {String} name Template name.
  */
 
-view.template = function(name, path) {
+view.template = function(name, path){
   name = name.replace(/\./, '/') + '.html';
   var lookup = path || view.template.lookup;
   // XXX: Implement view caching.
@@ -325,6 +323,7 @@ view.template = function(name, path) {
 
 /**
  * Specify the template lookup path.
+ *
  * @type {String}
  */
 
@@ -332,6 +331,7 @@ view.template.lookup = process.cwd() + '/templates/';
 
 /**
  * Registry of all the views.
+ *
  * @type {Object}
  */
 
@@ -339,6 +339,7 @@ view.views = {};
 
 /**
  * View constructor.
+ *
  * @param {Object} options View options.
  */
 
@@ -355,22 +356,24 @@ function View(options) {
 
 /**
  * Add a child view.
+ *
  * @param  {String} child View name
  * @return {View}   View instance
  */
 
-View.prototype.child = function(child) {
+View.prototype.child = function(child){
   this.childView = view(child);
   return this;
 };
 
 /**
  * Swap the current child view.
+ *
  * @param  {String} name View name
  * @return {View} View instance
  */
 
-View.prototype.swap = function(name) {
+View.prototype.swap = function(name){
   this.childView = view(name);
   return this;
 };
