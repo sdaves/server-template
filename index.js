@@ -29,7 +29,6 @@ exports.View = View;
 
 exports.context = context;
 
-
 /**
  * Create a new view instance.
  *
@@ -132,6 +131,7 @@ exports.compile = function(template){
   context('global');
 
   // Load the template into cheerio.
+  // XXX: can cache the cheerio dom then clone?
   $ = cheerio.load(template);
 
   // Render the views.
