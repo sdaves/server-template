@@ -1,12 +1,13 @@
+
 /**
  * Module Dependencies.
  */
 
-var fs = require('fs'),
-  cheerio = require('cheerio'),
-  context = require('./lib/context'),
-  indexOf = require('indexof'),
-  $ = null;
+var fs = require('fs')
+  , cheerio = require('cheerio')
+  , context = require('./lib/context')
+  , indexOf = require('indexof')
+  , $ = null;
 
 /**
  * Expose `view`.
