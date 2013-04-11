@@ -36,7 +36,7 @@ function view(name) {
 
   // Return a view instance if
   // it already exists.
-  if (view.views[name]) return view.views[name];
+  if (exports.views[name]) return exports.views[name];
 
   // Create a new view instance.
   var instance = new View({
@@ -44,15 +44,22 @@ function view(name) {
   });
 
   // Return a new view instance.
-  return view.views[name] = instance;
+  return exports.views[name] = instance;
 }
+
+/**
+ * List of view instances.
+ * @type {Object}
+ */
+
+exports.views = {};
 
 /**
  * Clears the references of all the views.
  */
 
 exports.clear = function(){
-  view.views = {};
+  exports.views = {};
 };
 
 /**

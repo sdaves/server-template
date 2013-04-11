@@ -100,12 +100,12 @@ describe('view', function(){
     assert(view('body').children[0].children[0] === view('action'));
   });
 
-  it('creates a new context', function(){
+  it('should create a new context', function(){
     context('global');
     assert(context.ctx['global'] === context('global'));
   });
 
-  it('creates a child view', function(){
+  it('should create a child view', function(){
     context('global')
       .child('loopOne')
       .child('loopTwo');
@@ -128,4 +128,9 @@ describe('view', function(){
     assert(context('global').get('var.one') === 1);
     assert(context('global').get('va2r.two') === 2);
   });
+
+  it('should render [each] binding.', function() {
+
+  });
+
 });
