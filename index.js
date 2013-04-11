@@ -78,19 +78,6 @@ exports.clear = function(){
 };
 
 /**
- * List of attributes.
- *
- * @type {Array}
- */
-
-exports.attr = {
-  //'view': 'view'
-  'data-text': 'dataText',
-  'each': 'each',
-  'on-click': 'onClick'
-};
-
-/**
  * Renders a view.
  *
  * @param  {String} name View name
