@@ -67,7 +67,7 @@ exports.bindings = {};
  * Clears the references of all the views.
  */
 
-exports.clear = function() {
+exports.clear = function(){
   exports.views = {};
 };
 
@@ -100,7 +100,7 @@ exports.context = {};
  * @param  {String} name View name
  */
 
-exports.render = function(name) {
+exports.render = function(name){
   // increment the render count.
   view.render.count++;
   // Load the template to be rendered
