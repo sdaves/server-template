@@ -31,7 +31,7 @@ module.exports.View = View;
 
 function view(name) {
   // Views require a name.
-  if (!name) throw new Error("You need to specify a name for the view.");
+  if (!name) throw new Error('You need to specify a name for the view.');
 
   // Return a view instance if
   // it already exists.
@@ -123,7 +123,7 @@ view.compile = function(template){
       // Run a filter against the `keys` variable.
       // Some use cases need to remove the first index to match the
       // context.
-      if ('function' == typeof filter) keys = filter(keys);
+      if ('function' === typeof filter) keys = filter(keys);
       // If keys is still valid.
       if (keys) {
         // Replace the html with the contexts of the key within the
@@ -183,9 +183,7 @@ view.compile = function(template){
 
     function findParent(el) {
       var parent = el.parent('[view]');
-      if (parent.attr('view')) {
-        return parent;
-      }
+      if (parent.attr('view')) return parent;
     }
 
     /**
@@ -215,7 +213,7 @@ view.compile = function(template){
             var cachedView = viewholds[viewKey];
 
             // Only if the cachedView is valid.
-            if (cachedView && 'object' == typeof cachedView) {
+            if (cachedView && 'object' === typeof cachedView) {
               // DOMify the cachedView.
               cachedView = $(cachedView);
 
