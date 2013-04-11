@@ -209,57 +209,10 @@ view.compile = function(template) {
           }
 
         }
+
       }
 
     }
-
-    // Replace the views.
-    /**elem.find('script[type="text/viewhold"]').each(function(i, e) {
-
-      var currentView = $(viewCache[i]);
-
-      // Find parent:
-      function findParent(el) {
-        var parent = el.parent('[view]');
-        if (parent.attr('view')) {
-          return parent;
-        }
-      }
-
-      if (findParent(this)) {
-        // is child.
-        //console.log(findParent(this).toString());
-      }
-
-      if (!nodes[i]) {
-        nodes[i] = {
-          view: currentView.attr('view'),
-          //elem: e,
-          children: {}
-        };
-      } else {
-        // vald entry
-      }
-
-
-      // if (nodes[i]) {
-
-      //   // Child view.
-      //   nodes[i].children = nodes[getLength()] = {
-      //     elem: e,
-      //     children: {}
-      //   };
-
-      // } else {
-      //   nodes[i] = {
-      //     elem: e,
-      //     children: {}
-      //   }
-      // }
-
-      this.after(currentView.toString());
-      this.remove();
-    });**/
 
     // Render child views. (recursive)
     elem.find('[view]').each(function() {
