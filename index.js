@@ -249,11 +249,11 @@ exports.bindings.view = function(elem, ctx){
   // Find all the views and remove them. (We will replace them later.)
   elem.find('[view]').remove();
 
-  // Render any [each] bindings.
-  exports.bindings.each(elem, ctx);
 
-  // Render any [data-text] bindings.
-  exports.bindings.text(elem, ctx);
+  for (var key in exports.bindings) {
+    if (key != 'view')
+      exports.bindings[key](elem, ctx);
+  }
 
   // Find and replace all placeholders.
   findPlaceHolders(elem);
@@ -263,6 +263,13 @@ exports.bindings.view = function(elem, ctx){
     exports.bindings.view(this, ctx);
   });
 };
+
+/**
+ * Render the [each] binding
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
 
 exports.bindings.each = function(elem, ctx){
   elem.find('[each]').each(function(){
