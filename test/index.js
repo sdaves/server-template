@@ -25,7 +25,7 @@ describe('view', function(){
 
     view('home');
 
-    assert(view('index').childView === view('home'));
+    assert(view('index').children[0] === view('home'));
   });
 
   it('should swap child views', function(){
@@ -35,11 +35,43 @@ describe('view', function(){
     view('home');
     view('about');
 
-    assert(view('index').childView === view('home'));
+    assert(view('index').children[0] === view('home'));
 
     view('index').swap('about');
 
-    assert(view('index').childView === view('about'));
+    assert(view('index').children[0] === view('about'));
+  });
+
+  it('should create multiple child views', function(){
+    view('body')
+      .child('navigation')
+      .child('content')
+      .child('sidebar')
+      .child('footer');
+
+    assert(4 === view('body').children.length);
+    assert('navigation' === view('body').children[0].name);
+    assert('content' === view('body').children[1].name);
+    assert('sidebar' === view('body').children[2].name);
+    assert('footer' === view('body').children[3].name);
+  });
+
+  it('should keep child view order', function(){
+    view('body')
+      .child('navigation')
+      .child('content')
+      .child('sidebar')
+      .child('footer')
+      .child('content')
+      .child('footer')
+      .child('navigation')
+      .child('sidebar');
+
+    assert(4 === view('body').children.length);
+    assert('navigation' === view('body').children[0].name);
+    assert('content' === view('body').children[1].name);
+    assert('sidebar' === view('body').children[2].name);
+    assert('footer' === view('body').children[3].name);
   });
 
   it('should load the render method.', function(){
@@ -65,7 +97,7 @@ describe('view', function(){
 
     view('action');
 
-    assert(view('body').childView.childView === view('action'));
+    assert(view('body').children[0].children[0] === view('action'));
   });
 
   it('creates a new context', function(){

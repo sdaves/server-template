@@ -6,6 +6,7 @@
 var fs = require('fs')
   , cheerio = require('cheerio')
   , context = require('./lib/context')
+  , indexOf = require('indexof')
   , $ = null;
 
 /**
@@ -344,8 +345,8 @@ exports.views = {};
 function View(options) {
   // View/template name.
   this.name = options.name;
-  // childView for the current view.
-  this.childView = null;
+  // children for the current view.
+  this.children = [];
   // DOM element.
   this.elem = null;
   // Current view's context.
@@ -355,12 +356,15 @@ function View(options) {
 /**
  * Add a child view.
  *
- * @param  {String} child View name
+ * @param  {String} name View name
  * @return {View}   View instance
  */
 
-View.prototype.child = function(child){
-  this.childView = view(child);
+View.prototype.child = function(name){
+  if (!this.children[name]) {
+    this.children.push(this.children[name] = view(name));
+  }
+
   return this;
 };
 
@@ -372,6 +376,8 @@ View.prototype.child = function(child){
  */
 
 View.prototype.swap = function(name){
-  this.childView = view(name);
+  // XXX: if there are multiple child views, maybe switch by name.
+  //      since it's only handling one view now this should work.
+  this.children[0] = view(name);
   return this;
 };
