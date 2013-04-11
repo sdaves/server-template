@@ -14,13 +14,13 @@ var fs = require('fs')
  * @type {Function}
  */
 
-module.exports = view;
+var exports = module.exports = view;
 
 /**
  * Expose `View`.
  */
 
-module.exports.View = View;
+exports.View = View;
 
 /**
  * Create a new view instance.
@@ -50,7 +50,7 @@ function view(name) {
  * Clears the references of all the views.
  */
 
-view.clear = function(){
+exports.clear = function(){
   view.views = {};
 };
 
@@ -60,14 +60,14 @@ view.clear = function(){
  * @type {Array}
  */
 
-view.attr = {
+exports.attr = {
   //'view': 'view'
   'data-text': 'dataText',
   'each': 'each',
   'on-click': 'onClick'
 };
 
-view.methods = {};
+exports.methods = {};
 
 /**
  * Hold a reference to the context.
@@ -75,7 +75,7 @@ view.methods = {};
  * @type {Object}
  */
 
-view.context = {};
+exports.context = {};
 
 /**
  * Renders a view.
@@ -83,7 +83,7 @@ view.context = {};
  * @param  {String} name View name
  */
 
-view.render = function(name){
+exports.render = function(name){
   // increment the render count.
   view.render.count++;
   // Load the template to be rendered
@@ -99,7 +99,7 @@ view.render = function(name){
  * @param  {String} template view
  */
 
-view.compile = function(template){
+exports.compile = function(template){
   var methods = {};
 
   // Create a new global context if it doesn't already exist.
@@ -300,7 +300,7 @@ view.compile = function(template){
  * @type {Number}
  */
 
-view.render.count = 0;
+exports.render.count = 0;
 
 /**
  * Return the specified template.
@@ -308,7 +308,7 @@ view.render.count = 0;
  * @param  {String} name Template name.
  */
 
-view.template = function(name, path){
+exports.template = function(name, path){
   name = name.replace(/\./, '/') + '.html';
   var lookup = path || view.template.lookup;
   // XXX: Implement view caching.
@@ -325,7 +325,7 @@ view.template = function(name, path){
  * @type {String}
  */
 
-view.template.lookup = process.cwd() + '/templates/';
+exports.template.lookup = process.cwd() + '/templates/';
 
 /**
  * Registry of all the views.
@@ -333,7 +333,7 @@ view.template.lookup = process.cwd() + '/templates/';
  * @type {Object}
  */
 
-view.views = {};
+exports.views = {};
 
 /**
  * View constructor.
