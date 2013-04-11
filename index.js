@@ -7,7 +7,7 @@ var fs = require('fs')
   , cheerio = require('cheerio')
   , context = require('./lib/context')
   , indexOf = require('indexof')
-  , $ = null;
+  , $;
 
 /**
  * Expose `view`.
@@ -195,6 +195,7 @@ function findPlaceHolders(e, isChild){
  *
  * @return {[type]} [description]
  */
+
 function content(elem, ctx, func, filter) {
   // Find all the elements with the attribute `data-text`
   elem.find('[data-'+func+']').each(function(){
@@ -238,6 +239,7 @@ exports.bindings.html = function(elem, ctx, filter) {
 
 /**
  * Render a view and render all the bindings within the view.
+ *
  * @param  {Object} elem Cheerio Object
  * @param  {Context} ctx  Current Context
  */
