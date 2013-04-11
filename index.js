@@ -342,9 +342,20 @@ exports.bindings.each = function(elem, ctx){
  */
 
 exports.bindings.checked = function(elem, ctx) {
-  // XXX:
-};
+  // Find all the elements with the attribute `data-text`
+  elem.find('[data-checked]').each(function(){
+    // Get the attribute value and split by "."
+    var variable = this.attr('data-checked');
 
+    if (variable === false) {
+      return exports.bindings.unchecked(elem, ctx);
+    }
+
+    // Replace the html with the contexts of the key within the
+    // current context `ctx`
+    this.attr('checked', ctx.get(variable));
+  });
+};
 
 /**
  * Unchecked
@@ -354,8 +365,18 @@ exports.bindings.checked = function(elem, ctx) {
  */
 
 exports.bindings.unchecked = function(elem, ctx) {
-  // XXX
+  // Find all the elements with the attribute `data-text`
+  elem.find('[data-unchecked]').each(function(){
+    // Get the attribute value and split by "."
+    var variable = this.attr('data-unchecked');
 
+    if (variable === false) {
+      this.attr('checked', ctx.get(variable));
+    } else {
+      this.removeAttr('checked');
+    }
+
+  });
 };
 
 /**
