@@ -138,7 +138,7 @@ view.compile = function(template) {
   methods.view = function(elem, ctx) {
 
     elem.find('[view]').each(function() {
-      this.after('<script type="text/viewhold" data-view="'+this.attr('view')+'"></script>');
+      this.after('<script type="text/viewhold" data-view="' + this.attr('view') + '"></script>');
       views.push(this.attr('view'));
     });
 
@@ -151,8 +151,7 @@ view.compile = function(template) {
       if (uviewCache.hasOwnProperty(kk) && kk !== 'length') {
         var val = uviewCache[kk];
         var viewName = $(val).attr('view');
-        if (viewName)
-          viewCache[$(val).attr('view')] = val;
+        if (viewName) viewCache[$(val).attr('view')] = val;
       }
     }
 
@@ -165,11 +164,7 @@ view.compile = function(template) {
     // Render any [data-text] bindings.
     methods.text(elem, ctx);
 
-    var nodes = [];
-
-    function getLength() {
-      return Object.keys(nodes).length;
-    }
+    findHoldplacers(elem);
 
     function findParent(el) {
       var parent = el.parent('[view]');
@@ -178,34 +173,35 @@ view.compile = function(template) {
       }
     }
 
-    findHoldplacers(elem);
-
     function findHoldplacers(e, isChild) {
-      var fnd;
+      var viewholds;
+
       if (isChild) {
-        fnd = e;
+        viewholds = e;
       } else {
-        var fnd = e.find('script[type="text/viewhold"]');
+        viewholds = e.find('script[type="text/viewhold"]');
       }
 
-      if (fnd) {
-        for (var k in fnd) {
+      if (viewholds) {
 
-          if (fnd.hasOwnProperty(k)) {
-            var vv = fnd[k];
-            if (vv && typeof vv === "object") {
-              vv = $(vv);
-              var viewName = vv.attr('data-view');
+        for (var viewKey in viewholds) {
+
+          if (viewholds.hasOwnProperty(viewKey)) {
+            var cachedView = viewholds[viewKey];
+
+            if (cachedView && typeof cachedView === "object") {
+              cachedView = $(cachedView);
+              var viewName = cachedView.attr('data-view');
               var currentView = $(viewCache[viewName]);
 
-              vv.after(currentView.toString());
-              vv.remove();
+              cachedView.after(currentView.toString());
+              cachedView.remove();
 
               var viewElement = elem.find('[view=' + viewName + ']');
               var subScripts = viewElement.find('script[type="text/viewhold"]');
-              if (subScripts)
-                findHoldplacers(subScripts, true);
+              if (subScripts) findHoldplacers(subScripts, true);
             }
+
           }
 
         }
@@ -216,13 +212,14 @@ view.compile = function(template) {
 
     // Render child views. (recursive)
     elem.find('[view]').each(function() {
-      //console.log(this.attr('view'));
       view(this.attr('view')).rendering = true;
       methods.view(this, ctx);
     });
+
   };
 
   methods.each = function(elem, ctx) {
+
     elem.find('[each]')
       .each(function() {
 
@@ -321,9 +318,15 @@ function View(options) {
   this.name = options.name;
   // childView for the current view.
   this.childView = null;
+  // DOM element.
   this.elem = null;
+  // Current view's context.
   this.ctx = {};
+  // is rendering.
+  // XXX: Move to client-side
   this.rendering = false;
+  // XXX: Move to client-side
+  this.rendered;
 }
 
 /**
@@ -346,9 +349,4 @@ View.prototype.child = function(child) {
 View.prototype.swap = function(name) {
   this.childView = view(name);
   return this;
-};
-
-View.prototype.render = function() {
-  this.elem = $('[view=' + this.name + ']');
-  var self = this;
 };
