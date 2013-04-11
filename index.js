@@ -252,6 +252,7 @@ exports.compile = function(template){
         .array(context(ctx.key).get(source));
 
       if (context(source).length() >= 0) {
+        // make this one a template, for use on the client.
         this.attr('style', 'display:none');
         this.attr('template', true);
 
@@ -266,6 +267,7 @@ exports.compile = function(template){
           var obj = context(source).vars[i];
           // Form a new context name for each iteration
           var ctxName = malloc + '.' + i;
+
           // Clone the original clone again, that way we get a clean copy.
           var clone = original.clone();
 
