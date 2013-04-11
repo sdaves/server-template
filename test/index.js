@@ -144,4 +144,21 @@ describe('view', function(){
 
   });
 
+  it('should compile [each] binding.', function() {
+
+    var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span><span data-text="user.age"></span></li></ul></body></html>');
+
+    context('global')
+      .set('users', [
+        { name: 'John', age: '22' }
+      ]);
+
+    view.bindings.each($('html'), context('global'));
+
+    var html = '<li each="user in users" style="display:none;"><span data-text="user.name"></span><span data-text="user.age"></span><li><span data-text="user.name">John</span><span data-text="user.age">22</span></li></li>';
+
+    assert($('ul').html() === html);
+
+  });
+
 });

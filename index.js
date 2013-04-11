@@ -283,14 +283,13 @@ exports.bindings.each = function(elem, ctx){
 
     if (context(source).length() >= 0) {
       // make this one a template, for use on the client.
-      this.attr('style', 'display:none');
-      this.attr('template', true);
+      this.attr('style', 'display:none;');
 
       // Clone it before we start appending to it. Otherwise we get a replication bug.
       var original = this.clone();
       // Remove a few attributes.
       original.removeAttr('style');
-      original.removeAttr('template');
+      original.removeAttr('each');
       // Loop through the context vars.
       for (var i = 0, n = context(source).length(); i < n; i++) {
         // Get the current object within the context. source = `user in users` <-- users
@@ -310,7 +309,7 @@ exports.bindings.each = function(elem, ctx){
 
         // Replace data-text with the appropriate value from
         // the specified context.
-        methods.text(clone, context(ctxName), function(keys){
+        exports.bindings.text(clone, context(ctxName), function(keys){
           // Remove the first index.
           keys.splice(0, 1);
           return keys;
