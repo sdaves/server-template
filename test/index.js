@@ -146,16 +146,37 @@ describe('view', function(){
 
   it('should compile [each] binding.', function() {
 
-    var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span><span data-text="user.age"></span></li></ul></body></html>');
+    var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span></li></ul></body></html>');
 
     context('global')
       .set('users', [
-        { name: 'John', age: '22' }
+        { name: 'John' }
       ]);
 
     view.bindings.each($('html'), context('global'));
 
-    var html = '<li each="user in users" style="display:none;"><span data-text="user.name"></span><span data-text="user.age"></span><li><span data-text="user.name">John</span><span data-text="user.age">22</span></li></li>';
+    var html = '<li each="user in users" style="display:none;"><span data-text="user.name"></span></li><li><span data-text="user.name">John</span></li>';
+
+    assert($('ul').html() === html);
+
+  });
+
+  it('should compile [each] binding. (multiple loops)', function() {
+
+    var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span></li></ul></body></html>');
+
+    context('global')
+      .set('users', [
+        { name: 'John'},
+        { name: 'Steve'}
+      ]);
+
+    view.bindings.each($('html'), context('global'));
+
+    var html = '<li each="user in users" style="display:none;"><span data-text="user.name"></span></li><li><span data-text="user.name">John</span></li><li><span data-text="user.name">Steve</span></li>';
+
+
+    //console.log($('ul').html());
 
     assert($('ul').html() === html);
 

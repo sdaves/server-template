@@ -315,8 +315,11 @@ exports.bindings.each = function(elem, ctx){
           return keys;
         });
 
+
+        var last = this.parent();
+
         // Append to the DOM!
-        this.append(clone);
+        last.append(clone);
       }
     }
   });
