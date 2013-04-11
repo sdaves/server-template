@@ -108,7 +108,10 @@ view.compile = function(template) {
     name: 'Roney'
   }])
 
+  // Load the template into cheerio.
   $ = cheerio.load(template);
+
+  var views = [];
 
   /**
    * Find and bind `data-text` attributes.
@@ -122,8 +125,7 @@ view.compile = function(template) {
     elem.find('[data-text]').each(function() {
       var keys = this.attr('data-text').split('.');
 
-      if (typeof filter === 'function')
-        keys = filter(keys);
+      if (typeof filter === 'function') keys = filter(keys);
 
       if (keys) {
         this.html(ctx.get(keys));
@@ -133,13 +135,26 @@ view.compile = function(template) {
   };
 
 
-  methods.view = function(elem, ctx, filter) {
+  methods.view = function(elem, ctx) {
+
     elem.find('[view]').each(function() {
-      this.after('<script type="text/hold"></script>');
+      this.after('<script type="text/viewhold" data-view="'+this.attr('view')+'"></script>');
+      views.push(this.attr('view'));
     });
 
     // Cache the views.
-    var viewCache = elem.find('[view]');
+    var uviewCache = elem.find('[view]');
+    var viewCache = {};
+
+
+    for (var kk in uviewCache) {
+      if (uviewCache.hasOwnProperty(kk) && kk !== 'length') {
+        var val = uviewCache[kk];
+        var viewName = $(val).attr('view');
+        if (viewName)
+          viewCache[$(val).attr('view')] = val;
+      }
+    }
 
     // Remove them.
     elem.find('[view]').remove();
@@ -150,17 +165,107 @@ view.compile = function(template) {
     // Render any [data-text] bindings.
     methods.text(elem, ctx);
 
+    var nodes = [];
+
+    function getLength() {
+      return Object.keys(nodes).length;
+    }
+
+    function findParent(el) {
+      var parent = el.parent('[view]');
+      if (parent.attr('view')) {
+        return parent;
+      }
+    }
+
+    findHoldplacers(elem);
+
+    function findHoldplacers(e, isChild) {
+      var fnd;
+      if (isChild) {
+        fnd = e;
+      } else {
+        var fnd = e.find('script[type="text/viewhold"]');
+      }
+
+      if (fnd) {
+        for (var k in fnd) {
+
+          if (fnd.hasOwnProperty(k)) {
+            var vv = fnd[k];
+            if (vv && typeof vv === "object") {
+              vv = $(vv);
+              var viewName = vv.attr('data-view');
+              var currentView = $(viewCache[viewName]);
+
+              vv.after(currentView.toString());
+              vv.remove();
+
+              var viewElement = elem.find('[view=' + viewName + ']');
+              var subScripts = viewElement.find('script[type="text/viewhold"]');
+              if (subScripts)
+                findHoldplacers(subScripts, true);
+            }
+          }
+
+        }
+      }
+
+    }
+
     // Replace the views.
-    elem.find('script[type="text/hold"]').each(function(i, e) {
-      this.after($(viewCache[i]).toString());
+    /**elem.find('script[type="text/viewhold"]').each(function(i, e) {
+
+      var currentView = $(viewCache[i]);
+
+      // Find parent:
+      function findParent(el) {
+        var parent = el.parent('[view]');
+        if (parent.attr('view')) {
+          return parent;
+        }
+      }
+
+      if (findParent(this)) {
+        // is child.
+        //console.log(findParent(this).toString());
+      }
+
+      if (!nodes[i]) {
+        nodes[i] = {
+          view: currentView.attr('view'),
+          //elem: e,
+          children: {}
+        };
+      } else {
+        // vald entry
+      }
+
+
+      // if (nodes[i]) {
+
+      //   // Child view.
+      //   nodes[i].children = nodes[getLength()] = {
+      //     elem: e,
+      //     children: {}
+      //   };
+
+      // } else {
+      //   nodes[i] = {
+      //     elem: e,
+      //     children: {}
+      //   }
+      // }
+
+      this.after(currentView.toString());
       this.remove();
-    });
+    });**/
 
     // Render child views. (recursive)
     elem.find('[view]').each(function() {
-      console.log(this.attr('view'));
+      //console.log(this.attr('view'));
       view(this.attr('view')).rendering = true;
-      methods.view(this, ctx, filter);
+      methods.view(this, ctx);
     });
   };
 
