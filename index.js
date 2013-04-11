@@ -382,13 +382,20 @@ exports.bindings.unchecked = function(elem, ctx) {
 /**
  * Value
  *
+ * This is used for input boxes and such.
+ *
  * @param  {Object} elem Cheerio Element
  * @param  {Object} ctx  Context
  */
 
 exports.bindings.value = function(elem, ctx) {
-  // XXX
+  // Find all the elements with the attribute `data-value`
+  elem.find('[data-value]').each(function(){
+    // Get the attribute value and split by "."
+    var variable = this.attr('data-value');
 
+    this.attr('value', ctx.get(variable));
+  });
 };
 
 /**

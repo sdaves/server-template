@@ -1,26 +1,26 @@
-var assert = require('assert')
-  , view = require('./../')
-  , fs = require('fs')
-  , context = require('./../lib/context')
-  , cheerio = require('cheerio');
+var assert = require('assert'),
+  view = require('./../'),
+  fs = require('fs'),
+  context = require('./../lib/context'),
+  cheerio = require('cheerio');
 
-describe('view', function(){
-  afterEach(function(){
+describe('view', function() {
+  afterEach(function() {
     view.clear();
     context.clear();
   });
 
-  it('should create a new view', function(){
+  it('should create a new view', function() {
     assert(view('index') instanceof view.View);
   });
 
-  it('should save a view reference.', function(){
+  it('should save a view reference.', function() {
     view('index');
 
     assert(view('index') instanceof view.View);
   });
 
-  it('should create a child view', function(){
+  it('should create a child view', function() {
     view('index')
       .child('home');
 
@@ -29,7 +29,7 @@ describe('view', function(){
     assert(view('index').children[0] === view('home'));
   });
 
-  it('should swap child views', function(){
+  it('should swap child views', function() {
     view('index')
       .child('home');
 
@@ -43,7 +43,7 @@ describe('view', function(){
     assert(view('index').children[0] === view('about'));
   });
 
-  it('should create multiple child views', function(){
+  it('should create multiple child views', function() {
     view('body')
       .child('navigation')
       .child('content')
@@ -57,7 +57,7 @@ describe('view', function(){
     assert('footer' === view('body').children[3].name);
   });
 
-  it('should keep child view order', function(){
+  it('should keep child view order', function() {
     view('body')
       .child('navigation')
       .child('content')
@@ -75,7 +75,7 @@ describe('view', function(){
     assert('footer' === view('body').children[3].name);
   });
 
-  it('should load the render method.', function(){
+  it('should load the render method.', function() {
     var num = view.render.count;
     view.template.lookup = process.cwd() + '/test/templates/';
     view.render('index');
@@ -83,13 +83,13 @@ describe('view', function(){
     assert(view.render.count === 1);
   });
 
-  it('should load the template file.', function(){
+  it('should load the template file.', function() {
     var template = fs.readFileSync(process.cwd() + '/test/templates/' + 'index.html', 'utf-8');
 
     assert(view.template('index', process.cwd() + '/test/templates/') === template);
   });
 
-  it('should have hierarchical child views.', function(){
+  it('should have hierarchical child views.', function() {
     view('body')
       .child('home');
 
@@ -101,12 +101,12 @@ describe('view', function(){
     assert(view('body').children[0].children[0] === view('action'));
   });
 
-  it('should create a new context', function(){
+  it('should create a new context', function() {
     context('global');
     assert(context.ctx['global'] === context('global'));
   });
 
-  it('should create a child view', function(){
+  it('should create a child view', function() {
     context('global')
       .child('loopOne')
       .child('loopTwo');
@@ -115,14 +115,14 @@ describe('view', function(){
     assert(context('global').children['loopTwo'] === context('loopTwo'))
   });
 
-  it('should set & access vars from current context', function(){
+  it('should set & access vars from current context', function() {
     context('global')
       .set('var', 1);
 
     assert(context('global').get('var') === 1);
   });
 
-  it('should set & access vars from current context (namespacing).', function(){
+  it('should set & access vars from current context (namespacing).', function() {
     context('global')
       .set('var.one', 1)
       .set('va2r.two', 2);
@@ -158,14 +158,27 @@ describe('view', function(){
 
   });
 
+  it('should compile [data-value] binding.', function() {
+
+    var $ = cheerio.load('<html><body><input type="text" data-value="el" /></body></html>');
+
+    // Create a new context:
+    context('global')
+      .set('el', 'Hello!');
+
+    view.bindings.value($('html'), context('global'));
+    assert($('input').attr('value') === "Hello!");
+
+  });
+
   it('should compile [each] binding.', function() {
 
     var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span></li></ul></body></html>');
 
     context('global')
-      .set('users', [
-        { name: 'John' }
-      ]);
+      .set('users', [{
+      name: 'John'
+    }]);
 
     view.bindings.each($('html'), context('global'));
 
@@ -180,10 +193,11 @@ describe('view', function(){
     var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span></li></ul></body></html>');
 
     context('global')
-      .set('users', [
-        { name: 'John'},
-        { name: 'Steve'}
-      ]);
+      .set('users', [{
+      name: 'John'
+    }, {
+      name: 'Steve'
+    }]);
 
     view.bindings.each($('html'), context('global'));
 
@@ -195,5 +209,7 @@ describe('view', function(){
     assert($('ul').html() === html);
 
   });
+
+
 
 });
