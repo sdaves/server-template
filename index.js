@@ -49,6 +49,7 @@ function view(name) {
 
 /**
  * List of view instances.
+ *
  * @type {Object}
  */
 
@@ -56,6 +57,7 @@ exports.views = {};
 
 /**
  * Map of all the binding functions.
+ *
  * @type {Object}
  */
 
@@ -111,6 +113,7 @@ exports.render = function(name) {
 
 /**
  * Find the elements' parent or current view.
+ *
  * @param  {Object} el Cheerio Element
  * @return {Object} Cheerio Element
  */
@@ -126,8 +129,7 @@ function findParent(el) {
  * @param  {String} template view
  */
 
-exports.compile = function(template) {
-
+exports.compile = function(template){
   // Create a new global context if it doesn't already exist.
   context('global');
 
@@ -143,13 +145,14 @@ exports.compile = function(template) {
 
 /**
  * Find and replace placeholders
+ *
  * @param  {Object}  e Cheerio Element
  * @param  {Boolean} isChild If the element is a child view.
  *
  * XXX: Rename some variables.
  */
 
-function findPlaceHolders(e, isChild) {
+function findPlaceHolders(e, isChild){
   var viewholds;
 
   // Only look for script tags if the element isn't a child.
@@ -191,14 +194,15 @@ function findPlaceHolders(e, isChild) {
 
 /**
  * Find and bind `data-text` attributes.
+ *
  * @param  {Elem} elem DOM element.
  * @param  {Context} ctx current context.
  * @param  {Function} filter Filter function to run against `keys`
  */
 
-exports.bindings.text = function(elem, ctx, filter) {
+exports.bindings.text = function(elem, ctx, filter){
   // Find all the elements with the attribute `data-text`
-  elem.find('[data-text]').each(function() {
+  elem.find('[data-text]').each(function(){
     // Get the attribute value and split by "."
     var keys = this.attr('data-text').split('.');
     // Run a filter against the `keys` variable.
@@ -220,9 +224,9 @@ exports.bindings.text = function(elem, ctx, filter) {
  * @param  {Context} ctx  Current Context
  */
 
-exports.bindings.view = function(elem, ctx) {
+exports.bindings.view = function(elem, ctx){
   // Find all the elements that are defined as views.
-  elem.find('[view]').each(function() {
+  elem.find('[view]').each(function(){
     // Insert a new script tag as a placeholder after the view.
     this.after('<script type="text/viewhold" data-view="' + this.attr('view') + '"></script>');
   });
@@ -257,13 +261,13 @@ exports.bindings.view = function(elem, ctx) {
   findPlaceHolders(elem);
 
   // Render child views. (recursively)
-  elem.find('[view]').each(function() {
+  elem.find('[view]').each(function(){
     exports.bindings.view(this, ctx);
   });
 };
 
-exports.bindings.each = function(elem, ctx) {
-  elem.find('[each]').each(function() {
+exports.bindings.each = function(elem, ctx){
+  elem.find('[each]').each(function(){
     // Create a new context.
     var attr = this.attr('each').split(' '),
       source = attr[2],
@@ -301,7 +305,7 @@ exports.bindings.each = function(elem, ctx) {
 
         // Replace data-text with the appropriate value from
         // the specified context.
-        methods.text(clone, context(ctxName), function(keys) {
+        methods.text(clone, context(ctxName), function(keys){
           // Remove the first index.
           keys.splice(0, 1);
           return keys;
@@ -328,7 +332,7 @@ exports.render.count = 0;
  * @param  {String} name Template name.
  */
 
-exports.template = function(name, path) {
+exports.template = function(name, path){
   name = name.replace(/\./, '/') + '.html';
   var lookup = path || view.template.lookup;
   // XXX: Implement view caching.
@@ -379,7 +383,7 @@ function View(options) {
  * @return {View}   View instance
  */
 
-View.prototype.child = function(name) {
+View.prototype.child = function(name){
   if (!this.children[name]) {
     this.children.push(this.children[name] = view(name));
   }
@@ -394,7 +398,7 @@ View.prototype.child = function(name) {
  * @return {View} View instance
  */
 
-View.prototype.swap = function(name) {
+View.prototype.swap = function(name){
   // XXX: if there are multiple child views, maybe switch by name.
   //      since it's only handling one view now this should work.
   this.children[0] = view(name);
