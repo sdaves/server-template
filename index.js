@@ -211,7 +211,7 @@ exports.bindings.text = function(elem, ctx, filter){
     if (keys) {
       // Replace the html with the contexts of the key within the
       // current context `ctx`
-      this.html(ctx.get(keys));
+      this.text(ctx.get(keys));
     }
   });
 };
@@ -266,6 +266,8 @@ exports.bindings.view = function(elem, ctx){
 
 /**
  * Render the [each] binding
+ *
+ * XXX: Support both `data-each` and `each`
  *
  * @param  {Object} elem Cheerio Element
  * @param  {Object} ctx  Context
@@ -323,6 +325,102 @@ exports.bindings.each = function(elem, ctx){
       }
     }
   });
+};
+
+/**
+ * Checked
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.checked = function(elem, ctx) {
+  // XXX:
+};
+
+
+/**
+ * Unchecked
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.unchecked = function(elem, ctx) {
+  // XXX
+
+};
+
+/**
+ * Value
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.value = function(elem, ctx) {
+  // XXX
+
+};
+
+/**
+ * Show
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.show = function(elem, ctx) {
+  // XXX
+
+};
+
+/**
+ * Hide
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.hide = function(elem, ctx) {
+  // XXX
+
+};
+
+/**
+ * HTML
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.html = function(elem, ctx) {
+  // XXX
+
+};
+
+/**
+ * Enabled
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.enabled = function(elem, ctx) {
+  // XXX
+
+};
+
+/**
+ * Disabled
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.disabled = function(elem, ctx) {
+  // XXX
+
 };
 
 /**
