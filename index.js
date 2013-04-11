@@ -24,6 +24,13 @@ var exports = module.exports = view;
 exports.View = View;
 
 /**
+ * Expose `context`.
+ */
+
+exports.context = context;
+
+
+/**
  * Create a new view instance.
  *
  * @param  {String} name View name
@@ -87,14 +94,6 @@ exports.attr = {
 exports.methods = {};
 
 /**
- * Hold a reference to the context.
- *
- * @type {Object}
- */
-
-exports.context = {};
-
-/**
  * Renders a view.
  *
  * @param  {String} name View name
@@ -109,7 +108,6 @@ exports.render = function(name){
   var compiled = view.compile(template);
   if (view.context.res) view.context.res.send(compiled);
 };
-
 
 /**
  * Find the elements' parent or current view.
