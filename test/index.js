@@ -1,7 +1,8 @@
 var assert = require('assert')
   , view = require('./../')
   , fs = require('fs')
-  , context = require('./../lib/context');
+  , context = require('./../lib/context')
+  , cheerio = require('cheerio');
 
 describe('view', function(){
   afterEach(function(){
@@ -129,7 +130,17 @@ describe('view', function(){
     assert(context('global').get('va2r.two') === 2);
   });
 
-  it('should render [each] binding.', function() {
+  it('should compile [text] binding.', function() {
+
+    var $ = cheerio.load('<html><body><span data-text="name"></span></body></html>');
+
+    // Create a new context:
+    context('global')
+      .set('name', 'Done');
+
+    view.bindings.text($('html'), context('global'));
+
+    assert($('span').html() === "Done");
 
   });
 

@@ -249,7 +249,7 @@ exports.bindings.view = function(elem, ctx){
   // Find all the views and remove them. (We will replace them later.)
   elem.find('[view]').remove();
 
-
+  // Run all the bindings (except [view]).
   for (var key in exports.bindings) {
     if (key != 'view')
       exports.bindings[key](elem, ctx);
