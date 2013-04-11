@@ -90,8 +90,6 @@ exports.attr = {
   'on-click': 'onClick'
 };
 
-exports.methods = {};
-
 /**
  * Renders a view.
  *
