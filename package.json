@@ -1,11 +1,8 @@
 {
-    "name": "tower-server-view",
-    "version": "0.0.1",
-    "main": "./index.js",
-    "dependencies": {
-        "cheerio": "*"
-    },
-    "devDependencies": {
-        "mocha": "*"
-    }
+  "name": "tower-server-view",
+  "version": "0.0.1",
+  "main": "./index.js",
+  "dependencies": {
+    "cheerio": "*"
+  }
 }
