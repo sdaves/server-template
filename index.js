@@ -90,28 +90,11 @@ view.render = function(name) {
 view.compile = function(template) {
   var methods = {};
 
-  // Create a new context:
-  context('global')
-    .set('currentUser', 'TheHydroImpulse')
-    .set('users', [{
-    name: 'John'
-  }, {
-    name: 'Julie'
-  }, {
-    name: 'Dod'
-  }])
-    .set('users2', [{
-    name: 'Kate'
-  }, {
-    name: 'Ash'
-  }, {
-    name: 'Roney'
-  }])
+  // Create a new global context if it doesn't already exist.
+  context('global');
 
   // Load the template into cheerio.
   $ = cheerio.load(template);
-
-  var views = [];
 
   /**
    * Find and bind `data-text` attributes.
@@ -122,40 +105,58 @@ view.compile = function(template) {
 
   methods.text = function(elem, ctx, filter) {
 
+    // Find all the elements with the attribute `data-text`
     elem.find('[data-text]').each(function() {
+      // Get the attribute value and split by "."
       var keys = this.attr('data-text').split('.');
-
+      // Run a filter against the `keys` variable.
+      // Some use cases need to remove the first index to match the
+      // context.
       if (typeof filter === 'function') keys = filter(keys);
-
+      // If keys is still valid.
       if (keys) {
+        // Replace the html with the contexts of the key within the
+        // current context `ctx`
         this.html(ctx.get(keys));
       }
+
     });
 
   };
 
+  /**
+   * Render a view and render all the bindings within the view.
+   * @param  {Object} elem Cheerio Object
+   * @param  {Context} ctx  Current Context
+   */
 
   methods.view = function(elem, ctx) {
 
+    // Find all the elements that are defined as views.
     elem.find('[view]').each(function() {
+      // Insert a new script tag as a placeholder after the view.
       this.after('<script type="text/viewhold" data-view="' + this.attr('view') + '"></script>');
-      views.push(this.attr('view'));
     });
 
-    // Cache the views.
+    // Cache the find call.
     var uviewCache = elem.find('[view]');
+    // Cache all the views for later use.
     var viewCache = {};
 
-
+    // Loop through the uviewCache (#find call)
+    // XXX: Rename the variables to be clearer.
     for (var kk in uviewCache) {
+      // Only access valid keys.
       if (uviewCache.hasOwnProperty(kk) && kk !== 'length') {
         var val = uviewCache[kk];
         var viewName = $(val).attr('view');
-        if (viewName) viewCache[$(val).attr('view')] = val;
+        // fill the viewName (key) with the appropriate element value.
+        if (viewName) viewCache[viewName] = val;
       }
+
     }
 
-    // Remove them.
+    // Find all the views and remove them. (We will replace them later.)
     elem.find('[view]').remove();
 
     // Render any [each] bindings.
@@ -164,7 +165,14 @@ view.compile = function(template) {
     // Render any [data-text] bindings.
     methods.text(elem, ctx);
 
-    findHoldplacers(elem);
+    // Find and replace all placeholders.
+    findPlaceHolders(elem);
+
+    /**
+     * Find the elements' parent or current view.
+     * @param  {Object} el Cheerio Element
+     * @return {Object} Cheerio Element
+     */
 
     function findParent(el) {
       var parent = el.parent('[view]');
@@ -173,33 +181,50 @@ view.compile = function(template) {
       }
     }
 
-    function findHoldplacers(e, isChild) {
+    /**
+     * Find and replace placeholders
+     * @param  {Object}  e Cheerio Element
+     * @param  {Boolean} isChild If the element is a child view.
+     *
+     * XXX: Rename some variables.
+     */
+
+    function findPlaceHolders(e, isChild) {
       var viewholds;
 
+      // Only look for script tags if the element isn't a child.
       if (isChild) {
         viewholds = e;
       } else {
         viewholds = e.find('script[type="text/viewhold"]');
       }
 
+      // If viewholds is still valid.
       if (viewholds) {
 
+        // Loop through the viewholds.
         for (var viewKey in viewholds) {
 
+          // Only access valid keys.
           if (viewholds.hasOwnProperty(viewKey)) {
             var cachedView = viewholds[viewKey];
 
+            // Only if the cachedView is valid.
             if (cachedView && typeof cachedView === "object") {
+              // DOMify the cachedView.
               cachedView = $(cachedView);
+
               var viewName = cachedView.attr('data-view');
               var currentView = $(viewCache[viewName]);
 
+              // Replace the script tag with the appropriate view.
               cachedView.after(currentView.toString());
               cachedView.remove();
 
+              // Find any sub script tags and run this function again.
               var viewElement = elem.find('[view=' + viewName + ']');
               var subScripts = viewElement.find('script[type="text/viewhold"]');
-              if (subScripts) findHoldplacers(subScripts, true);
+              if (subScripts) findPlaceHolders(subScripts, true);
             }
 
           }
@@ -210,9 +235,8 @@ view.compile = function(template) {
 
     }
 
-    // Render child views. (recursive)
+    // Render child views. (recursively)
     elem.find('[view]').each(function() {
-      view(this.attr('view')).rendering = true;
       methods.view(this, ctx);
     });
 
@@ -256,10 +280,15 @@ view.compile = function(template) {
           // scope.
           .object(obj);
 
+          // Replace data-text with the appropriate value from
+          // the specified context.
           methods.text(clone, context(ctxName), function(keys) {
+            // Remove the first index.
             keys.splice(0, 1);
             return keys;
           });
+
+          // Append to the DOM!
           this.append(clone);
         }
       }
@@ -322,11 +351,6 @@ function View(options) {
   this.elem = null;
   // Current view's context.
   this.ctx = {};
-  // is rendering.
-  // XXX: Move to client-side
-  this.rendering = false;
-  // XXX: Move to client-side
-  this.rendered;
 }
 
 /**
