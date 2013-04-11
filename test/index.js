@@ -144,6 +144,20 @@ describe('view', function(){
 
   });
 
+  it('should compile [html] binding.', function() {
+
+    var $ = cheerio.load('<html><body><span data-html="el"></span></body></html>');
+
+    // Create a new context:
+    context('global')
+      .set('el', '<div></div>');
+
+    view.bindings.html($('html'), context('global'));
+
+    assert($('span').html() === "<div></div>");
+
+  });
+
   it('should compile [each] binding.', function() {
 
     var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span></li></ul></body></html>');
