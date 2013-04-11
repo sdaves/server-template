@@ -1,7 +1,8 @@
 var assert = require('assert')
   , view = require('./../')
   , fs = require('fs')
-  , context = require('./../lib/context');
+  , context = require('./../lib/context')
+  , cheerio = require('cheerio');
 
 describe('view', function(){
   afterEach(function(){
@@ -129,7 +130,69 @@ describe('view', function(){
     assert(context('global').get('va2r.two') === 2);
   });
 
-  it('should render [each] binding.', function() {
+  it('should compile [text] binding.', function() {
+
+    var $ = cheerio.load('<html><body><span data-text="name"></span></body></html>');
+
+    // Create a new context:
+    context('global')
+      .set('name', 'Done');
+
+    view.bindings.text($('html'), context('global'));
+
+    assert($('span').html() === "Done");
+
+  });
+
+  it('should compile [html] binding.', function() {
+
+    var $ = cheerio.load('<html><body><span data-html="el"></span></body></html>');
+
+    // Create a new context:
+    context('global')
+      .set('el', '<div></div>');
+
+    view.bindings.html($('html'), context('global'));
+
+    assert($('span').html() === "<div></div>");
+
+  });
+
+  it('should compile [each] binding.', function() {
+
+    var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span></li></ul></body></html>');
+
+    context('global')
+      .set('users', [
+        { name: 'John' }
+      ]);
+
+    view.bindings.each($('html'), context('global'));
+
+    var html = '<li each="user in users" style="display:none;"><span data-text="user.name"></span></li><li><span data-text="user.name">John</span></li>';
+
+    assert($('ul').html() === html);
+
+  });
+
+  it('should compile [each] binding. (multiple loops)', function() {
+
+    var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span></li></ul></body></html>');
+
+    context('global')
+      .set('users', [
+        { name: 'John'},
+        { name: 'Steve'}
+      ]);
+
+    view.bindings.each($('html'), context('global'));
+
+    var html = '<li each="user in users" style="display:none;"><span data-text="user.name"></span></li><li><span data-text="user.name">John</span></li><li><span data-text="user.name">Steve</span></li>';
+
+
+    //console.log($('ul').html());
+
+    assert($('ul').html() === html);
 
   });
 

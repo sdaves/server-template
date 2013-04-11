@@ -191,18 +191,15 @@ function findPlaceHolders(e, isChild){
 }
 
 /**
- * Find and bind `data-text` attributes.
+ * Replaces a DOM's content.
  *
- * @param  {Elem} elem DOM element.
- * @param  {Context} ctx current context.
- * @param  {Function} filter Filter function to run against `keys`
+ * @return {[type]} [description]
  */
-
-exports.bindings.text = function(elem, ctx, filter){
+function content(elem, ctx, func, filter) {
   // Find all the elements with the attribute `data-text`
-  elem.find('[data-text]').each(function(){
+  elem.find('[data-'+func+']').each(function(){
     // Get the attribute value and split by "."
-    var keys = this.attr('data-text').split('.');
+    var keys = this.attr('data-'+func+'').split('.');
     // Run a filter against the `keys` variable.
     // Some use cases need to remove the first index to match the
     // context.
@@ -211,9 +208,32 @@ exports.bindings.text = function(elem, ctx, filter){
     if (keys) {
       // Replace the html with the contexts of the key within the
       // current context `ctx`
-      this.html(ctx.get(keys));
+      this[func](ctx.get(keys));
     }
   });
+}
+
+/**
+ * Find and bind `data-text` attributes.
+ *
+ * @param  {Elem} elem DOM element.
+ * @param  {Context} ctx current context.
+ * @param  {Function} filter Filter function to run against `keys`
+ */
+
+exports.bindings.text = function(elem, ctx, filter){
+  content(elem, ctx, 'text', filter);
+};
+
+/**
+ * HTML
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.html = function(elem, ctx, filter) {
+  content(elem, ctx, 'html', filter);
 };
 
 /**
@@ -249,11 +269,11 @@ exports.bindings.view = function(elem, ctx){
   // Find all the views and remove them. (We will replace them later.)
   elem.find('[view]').remove();
 
-  // Render any [each] bindings.
-  exports.bindings.each(elem, ctx);
-
-  // Render any [data-text] bindings.
-  exports.bindings.text(elem, ctx);
+  // Run all the bindings (except [view]).
+  for (var key in exports.bindings) {
+    if (key != 'view')
+      exports.bindings[key](elem, ctx);
+  }
 
   // Find and replace all placeholders.
   findPlaceHolders(elem);
@@ -263,6 +283,15 @@ exports.bindings.view = function(elem, ctx){
     exports.bindings.view(this, ctx);
   });
 };
+
+/**
+ * Render the [each] binding
+ *
+ * XXX: Support both `data-each` and `each`
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
 
 exports.bindings.each = function(elem, ctx){
   elem.find('[each]').each(function(){
@@ -276,14 +305,13 @@ exports.bindings.each = function(elem, ctx){
 
     if (context(source).length() >= 0) {
       // make this one a template, for use on the client.
-      this.attr('style', 'display:none');
-      this.attr('template', true);
+      this.attr('style', 'display:none;');
 
       // Clone it before we start appending to it. Otherwise we get a replication bug.
       var original = this.clone();
       // Remove a few attributes.
       original.removeAttr('style');
-      original.removeAttr('template');
+      original.removeAttr('each');
       // Loop through the context vars.
       for (var i = 0, n = context(source).length(); i < n; i++) {
         // Get the current object within the context. source = `user in users` <-- users
@@ -303,17 +331,104 @@ exports.bindings.each = function(elem, ctx){
 
         // Replace data-text with the appropriate value from
         // the specified context.
-        methods.text(clone, context(ctxName), function(keys){
+        exports.bindings.text(clone, context(ctxName), function(keys){
           // Remove the first index.
           keys.splice(0, 1);
           return keys;
         });
 
+
+        var last = this.parent();
+
         // Append to the DOM!
-        this.append(clone);
+        last.append(clone);
       }
     }
   });
+};
+
+/**
+ * Checked
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.checked = function(elem, ctx) {
+  // XXX:
+};
+
+
+/**
+ * Unchecked
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.unchecked = function(elem, ctx) {
+  // XXX
+
+};
+
+/**
+ * Value
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.value = function(elem, ctx) {
+  // XXX
+
+};
+
+/**
+ * Show
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.show = function(elem, ctx) {
+  // XXX
+
+};
+
+/**
+ * Hide
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.hide = function(elem, ctx) {
+  // XXX
+
+};
+
+/**
+ * Enabled
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.enabled = function(elem, ctx) {
+  // XXX
+
+};
+
+/**
+ * Disabled
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.disabled = function(elem, ctx) {
+  // XXX
+
 };
 
 /**
