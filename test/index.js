@@ -130,8 +130,7 @@ describe('view', function(){
     assert(context('global').get('va2r.two') === 2);
   });
 
-  it('should compile [text] binding.', function() {
-
+  it('should compile [text] binding.', function(){
     var $ = cheerio.load('<html><body><span data-text="name"></span></body></html>');
 
     // Create a new context:
@@ -141,11 +140,9 @@ describe('view', function(){
     view.bindings.text($('html'), context('global'));
 
     assert($('span').html() === "Done");
-
   });
 
-  it('should compile [html] binding.', function() {
-
+  it('should compile [html] binding.', function(){
     var $ = cheerio.load('<html><body><span data-html="el"></span></body></html>');
 
     // Create a new context:
@@ -155,11 +152,9 @@ describe('view', function(){
     view.bindings.html($('html'), context('global'));
 
     assert($('span').html() === "<div></div>");
-
   });
 
-  it('should compile [each] binding.', function() {
-
+  it('should compile [each] binding.', function(){
     var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span></li></ul></body></html>');
 
     context('global')
@@ -172,11 +167,9 @@ describe('view', function(){
     var html = '<li each="user in users" style="display:none;"><span data-text="user.name"></span></li><li><span data-text="user.name">John</span></li>';
 
     assert($('ul').html() === html);
-
   });
 
-  it('should compile [each] binding. (multiple loops)', function() {
-
+  it('should compile [each] binding. (multiple loops)', function(){
     var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span></li></ul></body></html>');
 
     context('global')
@@ -189,11 +182,8 @@ describe('view', function(){
 
     var html = '<li each="user in users" style="display:none;"><span data-text="user.name"></span></li><li><span data-text="user.name">John</span></li><li><span data-text="user.name">Steve</span></li>';
 
-
     //console.log($('ul').html());
 
     assert($('ul').html() === html);
-
   });
-
 });
