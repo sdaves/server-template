@@ -7,7 +7,8 @@ var fs = require('fs')
   , cheerio = require('cheerio')
   , context = require('./lib/context')
   , indexOf = require('indexof')
-  , $;
+  , $
+  , bundle = require('tower-bundler');
 
 /**
  * Expose `view`.
@@ -68,6 +69,26 @@ exports.views = {};
  */
 
 exports.bindings = {};
+
+/**
+ * Registry of view helpers.
+ *
+ * @type {Array}
+ */
+
+exports.helpers = [];
+
+/**
+ * Function used to define new view helpers.
+ *
+ * @param  {String}   tag  Tag Name
+ * @param  {String}   attr Attribute Name
+ * @param  {Function} cb   Callback (Helper implementation)
+ */
+
+exports.helper = function(tag, attr, cb) {
+  exports.helpers.push({ tag: tag, attr: attr, cb: cb });
+};
 
 /**
  * Clears the references of all the views.
@@ -198,6 +219,25 @@ function content(elem, ctx, func, filter) {
     }
   });
 }
+
+/**
+ * Run all the view helpers
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.helpers = function(elem, ctx) {
+
+  for (var i = 0, n = exports.helpers.length; i < n; i++) {
+    var helper = exports.helpers[i];
+    elem.find(helper.tag + '[' + helper.attr + ']').each(function(i, e) {
+      this[helper.attr] = this.attr(helper.attr);
+      helper.cb.apply(this);
+    });
+  }
+
+};
 
 /**
  * Find and bind `data-text` attributes.
