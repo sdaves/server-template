@@ -572,3 +572,18 @@ View.prototype.swap = function(name){
   this.children[0] = view(name);
   return this;
 };
+
+
+// Built-in view helpers.
+exports.helper('script', 'asset', function() {
+  this.attr('src', bundler.js(this.asset));
+});
+
+exports.helper('style', 'asset', function() {
+  this.attr('href', bundler.css(this.asset));
+});
+
+exports.helper('img', 'asset', function() {
+  this.attr('href', bundler.img(this.asset));
+});
+
