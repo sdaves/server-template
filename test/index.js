@@ -1,11 +1,11 @@
-var assert = require('assert')
-  , view = require('./../')
-  , fs = require('fs')
-  , context = require('./../lib/context')
-  , cheerio = require('cheerio');
+var assert = require('assert'),
+  view = require('./../'),
+  fs = require('fs'),
+  context = require('./../lib/context'),
+  cheerio = require('cheerio');
 
 describe('view', function(){
-  afterEach(function(){
+  afterEach(function() {
     view.clear();
     context.clear();
   });
@@ -154,13 +154,24 @@ describe('view', function(){
     assert($('span').html() === "<div></div>");
   });
 
+  it('should compile [data-value] binding.', function(){
+    var $ = cheerio.load('<html><body><input type="text" data-value="el" /></body></html>');
+
+    // Create a new context:
+    context('global')
+      .set('el', 'Hello!');
+
+    view.bindings.value($('html'), context('global'));
+    assert($('input').attr('value') === "Hello!");
+  });
+
   it('should compile [each] binding.', function(){
     var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span></li></ul></body></html>');
 
     context('global')
-      .set('users', [
-        { name: 'John' }
-      ]);
+      .set('users', [{
+      name: 'John'
+    }]);
 
     view.bindings.each($('html'), context('global'));
 
@@ -173,10 +184,11 @@ describe('view', function(){
     var $ = cheerio.load('<html><body><ul><li each="user in users"><span data-text="user.name"></span></li></ul></body></html>');
 
     context('global')
-      .set('users', [
-        { name: 'John'},
-        { name: 'Steve'}
-      ]);
+      .set('users', [{
+      name: 'John'
+    }, {
+      name: 'Steve'
+    }]);
 
     view.bindings.each($('html'), context('global'));
 

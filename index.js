@@ -7,7 +7,8 @@ var fs = require('fs')
   , cheerio = require('cheerio')
   , context = require('./lib/context')
   , indexOf = require('indexof')
-  , $;
+  , $
+  , bundle = require('tower-bundler');
 
 /**
  * Expose `view`.
@@ -68,6 +69,26 @@ exports.views = {};
  */
 
 exports.bindings = {};
+
+/**
+ * Registry of view helpers.
+ *
+ * @type {Array}
+ */
+
+exports.helpers = [];
+
+/**
+ * Function used to define new view helpers.
+ *
+ * @param  {String}   tag  Tag Name
+ * @param  {String}   attr Attribute Name
+ * @param  {Function} cb   Callback (Helper implementation)
+ */
+
+exports.helper = function(tag, attr, cb) {
+  exports.helpers.push({ tag: tag, attr: attr, cb: cb });
+};
 
 /**
  * Clears the references of all the views.
@@ -198,6 +219,25 @@ function content(elem, ctx, func, filter) {
     }
   });
 }
+
+/**
+ * Run all the view helpers
+ *
+ * @param  {Object} elem Cheerio Element
+ * @param  {Object} ctx  Context
+ */
+
+exports.bindings.helpers = function(elem, ctx) {
+
+  for (var i = 0, n = exports.helpers.length; i < n; i++) {
+    var helper = exports.helpers[i];
+    elem.find(helper.tag + '[' + helper.attr + ']').each(function(i, e) {
+      this[helper.attr] = this.attr(helper.attr);
+      helper.cb.apply(this);
+    });
+  }
+
+};
 
 /**
  * Find and bind `data-text` attributes.
@@ -342,9 +382,20 @@ exports.bindings.each = function(elem, ctx){
  */
 
 exports.bindings.checked = function(elem, ctx) {
-  // XXX:
-};
+  // Find all the elements with the attribute `data-text`
+  elem.find('[data-checked]').each(function(){
+    // Get the attribute value and split by "."
+    var variable = this.attr('data-checked');
 
+    if (variable === false) {
+      return exports.bindings.unchecked(elem, ctx);
+    }
+
+    // Replace the html with the contexts of the key within the
+    // current context `ctx`
+    this.attr('checked', ctx.get(variable));
+  });
+};
 
 /**
  * Unchecked
@@ -354,20 +405,37 @@ exports.bindings.checked = function(elem, ctx) {
  */
 
 exports.bindings.unchecked = function(elem, ctx) {
-  // XXX
+  // Find all the elements with the attribute `data-text`
+  elem.find('[data-unchecked]').each(function(){
+    // Get the attribute value and split by "."
+    var variable = this.attr('data-unchecked');
 
+    if (variable === false) {
+      this.attr('checked', ctx.get(variable));
+    } else {
+      this.removeAttr('checked');
+    }
+
+  });
 };
 
 /**
  * Value
+ *
+ * This is used for input boxes and such.
  *
  * @param  {Object} elem Cheerio Element
  * @param  {Object} ctx  Context
  */
 
 exports.bindings.value = function(elem, ctx) {
-  // XXX
+  // Find all the elements with the attribute `data-value`
+  elem.find('[data-value]').each(function(){
+    // Get the attribute value and split by "."
+    var variable = this.attr('data-value');
 
+    this.attr('value', ctx.get(variable));
+  });
 };
 
 /**
@@ -504,3 +572,18 @@ View.prototype.swap = function(name){
   this.children[0] = view(name);
   return this;
 };
+
+
+// Built-in view helpers.
+exports.helper('script', 'asset', function() {
+  this.attr('src', bundler.js(this.asset));
+});
+
+exports.helper('style', 'asset', function() {
+  this.attr('href', bundler.css(this.asset));
+});
+
+exports.helper('img', 'asset', function() {
+  this.attr('href', bundler.img(this.asset));
+});
+
