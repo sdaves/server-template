@@ -5,10 +5,7 @@ var assert = require('assert')
   , context = view.context;
 
 describe('view', function(){
-  afterEach(function(){
-    view.clear();
-    context.clear();
-  });
+  afterEach(view.clear);
 
   it('should create a new view', function(){
     assert(view('index') instanceof view.View);

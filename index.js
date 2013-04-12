@@ -94,6 +94,8 @@ exports.helper = function(tag, attr, cb){
 
 exports.clear = function(){
   exports.views = {};
+  exports.context.clear();
+  return exports;
 };
 
 /**
