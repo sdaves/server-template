@@ -1,11 +1,11 @@
 var assert = require('assert')
   , fs = require('fs')
   , cheerio = require('cheerio')
-  , view = require('./../')
+  , view = require('..')
   , context = view.context;
 
 describe('view', function(){
-  afterEach(function() {
+  afterEach(function(){
     view.clear();
     context.clear();
   });
