@@ -25,7 +25,7 @@ Creating child views:
 
 ```javascript
 view('index')
-  child('anotherView');
+  .child('anotherView');
 
 view('anotherView');
 ```

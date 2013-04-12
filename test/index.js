@@ -1,8 +1,8 @@
-var assert = require('assert'),
-  view = require('./../'),
-  fs = require('fs'),
-  context = require('./../lib/context'),
-  cheerio = require('cheerio');
+var assert = require('assert')
+  , fs = require('fs')
+  , cheerio = require('cheerio')
+  , view = require('./../')
+  , context = view.context;
 
 describe('view', function(){
   afterEach(function() {
