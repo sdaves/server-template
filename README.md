@@ -25,7 +25,7 @@ Creating child views:
 
 ```javascript
 view('index')
-  child('anotherView');
+  .child('anotherView');
 
 view('anotherView');
 ```
@@ -84,9 +84,8 @@ Then within a view:
 
 ```html
 <html>
-    <body>
-        <span data-text="var"></span> <!-- The span will be filled in with `1` -->
-    </body>
+  <body>
+    <span data-text="var"></span> <!-- The span will be filled in with `1` -->
+  </body>
 </html>
 ```
-
