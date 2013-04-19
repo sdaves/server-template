@@ -1,11 +1,12 @@
 {
-  "name": "view",
+  "name": "tower-view",
   "repo": "tower/view",
   "description": "Tower client-side views.",
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
-    "component/reactive": "*"
+    "component/reactive": "*",
+    "component/emitter": "*"
   },
   "scripts": [
     "index.js"
