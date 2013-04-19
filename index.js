@@ -251,6 +251,8 @@ exports.bindings.html = function(elem, ctx, filter){
   content(elem, ctx, 'html', filter);
 };
 
+var viewCache = {};
+
 /**
  * Render a view and render all the bindings within the view.
  *
@@ -267,8 +269,6 @@ exports.bindings.view = function(elem, ctx){
 
   // Cache the find call.
   var uviewCache = elem.find('[view]');
-  // Cache all the views for later use.
-  var viewCache = {};
 
   // Loop through the uviewCache (#find call)
   // XXX: Rename the variables to be clearer.
@@ -592,7 +592,7 @@ function findPlaceHolders(e, isChild){
           cachedView.remove();
 
           // Find any sub script tags and run this function again.
-          var viewElement = elem.find('[view=' + viewName + ']');
+          var viewElement = e.find('[view=' + viewName + ']');
           var subScripts = viewElement.find('script[type="text/viewhold"]');
           if (subScripts) findPlaceHolders(subScripts, true);
         }
