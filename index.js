@@ -1,19 +1,19 @@
+
 /**
- * Module Dependencies.
+ * Module dependencies.
  */
 
 var reactive = require('reactive')
   , Emitter  = require('emitter');
 
-
 /**
- * Module Export
+ * Expose `view`.
  */
 
-var exports = module.exports = view;
+exports = module.exports = view;
 
 /**
- * Registry of all the contexts.
+ * Registry of all contexts.
  *
  * @type {Object}
  */
@@ -23,7 +23,7 @@ exports.contexts = {};
 /**
  * Create or retrieve an existing context.
  *
- * @param  {String} name
+ * @param {String} name
  */
 
 function context(name, parent) {
@@ -40,7 +40,7 @@ function context(name, parent) {
 }
 
 /**
- * Context Constructor.
+ * Instantiate a new `Context`.
  *
  * @param {Object} options
  */
@@ -70,13 +70,12 @@ Context.prototype.get = function() {
 
 
 /**
- * Variable scope constructor.
+ * Instantiate a new `Scope`.
  */
 
 function Scope() {
 
 }
-
 
 //Emitter(Scope.prototype);
 
@@ -97,13 +96,16 @@ exports.views = {};
 function view(name) {
   if (!name) throw new Error("Views need a name.");
 
-  if (exports.views[name])
-    return exports.views[name];
+  if (exports.views[name]) return exports.views[name];
 
-  return exports.views[name] = new View({
-    name: name,
-    state: (name === 'body') ? 'rendered' : 'not rendered'
+  var instance = new View({
+      name: name
+    , state: ('body' === name) ? 'rendered' : 'not rendered'
   });
+
+  // XXX: view.emit('defined', instance);
+
+  return exports.views[name] = instance;
 }
 
 /**
@@ -150,47 +152,39 @@ function view(name) {
  *   If it's children are not rendered, then render them, otherwise
  *   render the children.
  *
- *
  * @return {[type]}
  */
-view.init = function() {
 
+view.init = function(){
   // Find all the non-rendered views and their instance.
-  $(document).find('script[type="text/view"]').each(function() {
+  $(document).find('script[type="text/view"]').each(function(){
     var elem = $(this)
       , name = elem.attr('name');
 
     view(name)._state('not rendered');
     view(name).elem = elem;
-
   });
 
-
-  $(document).find('[view]').each(function() {
+  $(document).find('[view]').each(function(){
     var elem = $(this)
       , name = elem.attr('view');
 
     // Set the state to `rendered`
     view(name)._state('rendered');
     view(name).elem = elem;
-
   });
-
 
   var bodyView = view('body');
 
   function recurseViews(viewObj, parent) {
+    if (!parent) parent = viewObj;
 
-    if (!parent) {
-      parent = viewObj;
-    }
-
-    if (viewObj.state === 'not rendered') {
+    if ('not rendered' === viewObj.state) {
       parent.elem.append(viewObj.elem);
     }
 
     if (viewObj.hasChildren()) {
-      for(var key in viewObj.children) {
+      for (var key in viewObj.children) {
         var child = viewObj.children[key];
         recurseViews(child, parent);
       }
@@ -198,7 +192,6 @@ view.init = function() {
   }
 
   recurseViews(bodyView);
-
 };
 
 /**
@@ -213,19 +206,18 @@ function View(options) {
   this.state = options.state || 'not rendered';
   this.elem = null;
 
-  if (this.name === 'body') {
+  if ('body' === this.name) {
     this.elem = $('body');
   }
-
 }
 
 /**
  * Create a new child view.
  *
- * @param  {String} name View name
+ * @param {String} name View name
  */
 
-View.prototype.child = function(name) {
+View.prototype.child = function(name){
   this.children[name] = view(name);
   return this;
 };
@@ -236,33 +228,30 @@ View.prototype.child = function(name) {
  * @return {Boolean}
  */
 
-View.prototype.hasChildren = function() {
-  return Object.keys(this.children).length >= 1;
+View.prototype.hasChildren = function(){
+  return !!Object.keys(this.children).length;
 }
 
 /**
  * Set or get the current state
  *
- * @param  {String} state
+ * @param {String} state
  * @return {View}
  */
 
-View.prototype._state = function(state, boolean) {
-  if (arguments.length === 2) {
-    return this.state = state;
-  } else {
-    return this.state;
-  }
+View.prototype._state = function(state, boolean){
+  if (2 === arguments.length) this.state = state;
+  return this.state;
 };
 
 /**
  * Swap a view with another view.
  *
- * @param  {String} from View to swap
- * @param  {String} to   View to replace with.
+ * @param {String} from View to swap
+ * @param {String} to   View to replace with.
  */
 
-View.prototype.swap = function(from, to) {
+View.prototype.swap = function(from, to){
   this.children[from] = view(to);
   return this;
 };
