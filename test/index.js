@@ -3,6 +3,6 @@ var view = 'undefined' == typeof window ? require('..') : require('tower-view')
 
 describe('client view', function(){
   it('should render', function(){
-    
+    console.log(view('body'))
   });
 });
