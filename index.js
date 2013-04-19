@@ -8,7 +8,7 @@ var fs = require('fs')
   , context = require('./lib/context')
   , indexOf = require('indexof')
   , $
-  , bundle = require('tower-bundler');
+  , bundler = require('tower-bundler');
 
 /**
  * Expose `view`.
@@ -180,14 +180,14 @@ function findPlaceHolders(e, isChild){
           cachedView = $(cachedView);
 
           var viewName = cachedView.attr('data-view');
-          var currentView = $(viewCache[viewName]);
+          var currentView = $(cachedView[viewName]);
 
           // Replace the script tag with the appropriate view.
           cachedView.after(currentView.toString());
           cachedView.remove();
 
           // Find any sub script tags and run this function again.
-          var viewElement = elem.find('[view=' + viewName + ']');
+          var viewElement = e.find('[view=' + viewName + ']');
           var subScripts = viewElement.find('script[type="text/viewhold"]');
           if (subScripts) findPlaceHolders(subScripts, true);
         }
