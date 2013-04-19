@@ -6,7 +6,11 @@
   "keywords": [],
   "dependencies": {
     "component/reactive": "*",
-    "component/emitter": "*"
+    "component/emitter": "*",
+    "component/assert": "*"
+  },
+  "development": {
+    "visionmedia/mocha": "*"
   },
   "scripts": [
     "index.js"
