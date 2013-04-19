@@ -29,13 +29,11 @@ exports.contexts = {};
 function context(name, parent) {
   if (!name) throw new Error("You need to specify a name within a context.");
 
-  if (exports.contexts[name])
-    return exports.contexts[name];
-
+  if (exports.contexts[name]) return exports.contexts[name];
 
   return exports.contexts[name] = new Context({
-    name: name,
-    parent: parent
+      name: name
+    , parent: parent
   });
 }
 
@@ -67,7 +65,6 @@ Context.prototype.set = function() {
 Context.prototype.get = function() {
 
 };
-
 
 /**
  * Instantiate a new `Scope`.
