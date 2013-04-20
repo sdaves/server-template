@@ -7,8 +7,8 @@ var fs = require('fs')
   , cheerio = require('cheerio')
   , context = require('./lib/context')
   , indexOf = require('indexof')
-  , bundle = require('tower-bundler')
-  , $;
+  , $
+  , bundler = require('tower-bundler');
 
 /**
  * Expose `view`.
@@ -136,6 +136,82 @@ exports.compile = function(template){
 };
 
 /**
+<<<<<<< HEAD
+ * Find and replace placeholders
+ *
+ * @param  {Object}  e Cheerio Element
+ * @param  {Boolean} isChild If the element is a child view.
+ *
+ * XXX: Rename some variables.
+ */
+
+function findPlaceHolders(e, isChild){
+  var viewholds;
+
+  // Only look for script tags if the element isn't a child.
+  if (isChild) {
+    viewholds = e;
+  } else {
+    viewholds = e.find('script[type="text/viewhold"]');
+  }
+
+  // If viewholds is still valid.
+  if (viewholds) {
+    // Loop through the viewholds.
+    for (var viewKey in viewholds) {
+      // Only access valid keys.
+      if (viewholds.hasOwnProperty(viewKey)) {
+        var cachedView = viewholds[viewKey];
+
+        // Only if the cachedView is valid.
+        if (cachedView && 'object' === typeof cachedView) {
+          // DOMify the cachedView.
+          cachedView = $(cachedView);
+
+          var viewName = cachedView.attr('data-view');
+          var currentView = $(cachedView[viewName]);
+
+          // Replace the script tag with the appropriate view.
+          cachedView.after(currentView.toString());
+          cachedView.remove();
+
+          // Find any sub script tags and run this function again.
+          var viewElement = e.find('[view=' + viewName + ']');
+          var subScripts = viewElement.find('script[type="text/viewhold"]');
+          if (subScripts) findPlaceHolders(subScripts, true);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Replaces a DOM's content.
+ *
+ * @return {[type]} [description]
+ */
+
+function content(elem, ctx, func, filter) {
+  // Find all the elements with the attribute `data-text`
+  elem.find('[data-'+func+']').each(function(){
+    // Get the attribute value and split by "."
+    var keys = this.attr('data-'+func+'').split('.');
+    // Run a filter against the `keys` variable.
+    // Some use cases need to remove the first index to match the
+    // context.
+    if ('function' === typeof filter) keys = filter(keys);
+    // If keys is still valid.
+    if (keys) {
+      // Replace the html with the contexts of the key within the
+      // current context `ctx`
+      this[func](ctx.get(keys));
+    }
+  });
+}
+
+/**
+=======
+>>>>>>> 984a6bb93198050c384c495b7125fc93b8ccf3ad
  * Run all the view helpers
  *
  * @param  {Object} elem Cheerio Element
@@ -175,6 +251,8 @@ exports.bindings.html = function(elem, ctx, filter){
   content(elem, ctx, 'html', filter);
 };
 
+var viewCache = {};
+
 /**
  * Render a view and render all the bindings within the view.
  *
@@ -191,8 +269,6 @@ exports.bindings.view = function(elem, ctx){
 
   // Cache the find call.
   var uviewCache = elem.find('[view]');
-  // Cache all the views for later use.
-  var viewCache = {};
 
   // Loop through the uviewCache (#find call)
   // XXX: Rename the variables to be clearer.
@@ -516,7 +592,7 @@ function findPlaceHolders(e, isChild){
           cachedView.remove();
 
           // Find any sub script tags and run this function again.
-          var viewElement = elem.find('[view=' + viewName + ']');
+          var viewElement = e.find('[view=' + viewName + ']');
           var subScripts = viewElement.find('script[type="text/viewhold"]');
           if (subScripts) findPlaceHolders(subScripts, true);
         }
