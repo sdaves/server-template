@@ -1,5 +1,5 @@
 {
-  "name": "tower-server-view",
+  "name": "tower-view",
   "version": "0.0.1",
   "main": "./index.js",
   "dependencies": {
