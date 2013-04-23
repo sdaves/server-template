@@ -199,7 +199,7 @@ view.init = function(){
 
 function View(options) {
   this.name = options.name;
-  this.children = {};
+  this.children = [];
   this.state = options.state || 'not rendered';
   this.elem = null;
 
@@ -217,7 +217,8 @@ Emitter(View.prototype);
  */
 
 View.prototype.child = function(name){
-  this.children[name] = view(name);
+  if (this.children[name]) return this;
+  this.children.push(this.children[name] = view(name));
   return this;
 };
 
@@ -228,7 +229,7 @@ View.prototype.child = function(name){
  */
 
 View.prototype.hasChildren = function(){
-  return !!Object.keys(this.children).length;
+  return this.children.length;
 }
 
 /**
@@ -238,9 +239,9 @@ View.prototype.hasChildren = function(){
  * @return {View}
  */
 
-View.prototype._state = function(state, boolean){
-  if (2 === arguments.length) this.state = state;
-  return this.state;
+View.prototype._state = function(state){
+  this.state = state;
+  return this;
 };
 
 /**
