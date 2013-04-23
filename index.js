@@ -208,6 +208,8 @@ function View(options) {
   }
 }
 
+Emitter(View.prototype);
+
 /**
  * Create a new child view.
  *
