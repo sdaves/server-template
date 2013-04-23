@@ -1,15 +1,15 @@
 {
   "name": "tower-view",
-  "repo": "tower/view",
+  "repo": "tower/client-view",
   "description": "Tower client-side views.",
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
     "component/reactive": "*",
-    "component/emitter": "*",
-    "component/assert": "*"
+    "tower/emitter": "*"
   },
   "development": {
+    "component/assert": "*",
     "visionmedia/mocha": "*"
   },
   "scripts": [

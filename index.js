@@ -4,7 +4,7 @@
  */
 
 var reactive = require('reactive')
-  , Emitter  = require('emitter');
+  , Emitter  = require('tower-emitter');
 
 /**
  * Expose `view`.
