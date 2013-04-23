@@ -7,14 +7,15 @@ var fs = require('fs')
   , cheerio = require('cheerio')
   , context = require('./lib/context')
   , indexOf = require('indexof')
-  , $
-  , bundler = require('tower-bundler');
+  , bundler = require('tower-bundler')
+  , Emitter = require('tower-emitter')
+  , $;
 
 /**
  * Expose `view`.
  */
 
-var exports = module.exports = view;
+exports = module.exports = view;
 
 /**
  * Expose `View`.
@@ -522,6 +523,8 @@ function View(options) {
   // Current view's context.
   this.ctx = {};
 }
+
+Emitter(View.prototype);
 
 /**
  * Add a child view.

@@ -4,6 +4,7 @@
   "main": "./index.js",
   "dependencies": {
     "cheerio": "*",
-    "indexof": "*"
+    "indexof": "*",
+    "tower-emitter": "*"
   }
 }
