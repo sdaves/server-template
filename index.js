@@ -9,6 +9,9 @@ var Emitter  = require('tower-emitter')
   , run      = require('tower-run-loop')
   , context  = require('./lib/context');
 
+
+run.queues.push('render');
+
 /**
  * Expose `view`.
  */
@@ -131,6 +134,7 @@ function View(options) {
   this.children = [];
   this.state = options.state || 'not rendered';
   this.elem = $(options.elem) || null;
+  this.swapContainers = [];
 
   if ('body' === this.name) {
     this.elem = $('body');
@@ -169,6 +173,13 @@ View.prototype.hasChildren = function(){
  */
 
 View.prototype.swap = function(from, to){
+
+  if (this.swapContainers[from]) {
+    this.swapContainers[from] = view(to);
+    // XXX: Either force a render of that area (simply swapping & binding)
+    //      or batch it for the next render cycle.
+  }
+
   this.children[from] = view(to);
   return this;
 };
