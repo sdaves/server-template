@@ -67,8 +67,14 @@ describe('client view', function(){
     assert(instance.hasChildren() === false);
   });
 
-  it('should ', function() {
+  it('should set body element if view name is body', function() {
+    view('body');
 
+    assert(!! view('body').elem);
+  });
+
+  it('should has `not rendered` state before rendering.', function() {
+    assert(view('one').state === 'not rendered');
   });
 
 });

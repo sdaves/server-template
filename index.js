@@ -37,13 +37,15 @@ exports.context = context;
  * @param  {String} name View name
  */
 
-function view(name) {
+function view(name, elem) {
   if (!name) throw new Error("Views need a name.");
 
   if (exports.views[name]) return exports.views[name];
 
   var instance = new View({
       name: name
+    , elem: elem
+    // XXX: Not sure if `rendered` should mean visible or ready
     , state: ('body' === name) ? 'rendered' : 'not rendered'
   });
 
@@ -128,7 +130,7 @@ function View(options) {
   this.name = options.name;
   this.children = [];
   this.state = options.state || 'not rendered';
-  this.elem = null;
+  this.elem = $(options.elem) || null;
 
   if ('body' === this.name) {
     this.elem = $('body');
@@ -158,18 +160,6 @@ View.prototype.child = function(name){
 View.prototype.hasChildren = function(){
   return !!this.children.length;
 }
-
-/**
- * Set or get the current state
- *
- * @param {String} state
- * @return {View}
- */
-
-View.prototype._state = function(state){
-  this.state = state;
-  return this;
-};
 
 /**
  * Swap a view with another view.
