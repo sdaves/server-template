@@ -47,11 +47,19 @@ function view(name) {
     , state: ('body' === name) ? 'rendered' : 'not rendered'
   });
 
-  // XXX: view.emit('defined', instance);
+  view.emit('defined', instance);
 
   return exports.views[name] = instance;
 }
 
+/**
+ * Clear all the registered views, events, and contexts.
+ */
+
+view.clear = function() {
+  exports.views = {};
+  context.contexts = {};
+};
 
 /**
  * Mixin an Emitter
@@ -71,8 +79,9 @@ Emitter(view);
  */
 
 view.init = function(){
+  view.emit('init');
   // Find all the non-rendered views and their instance.
-  $(document).find('script[type="text/view"]').each(function(){
+  /**$(document).find('script[type="text/view"]').each(function(){
     var elem = $(this)
       , name = elem.attr('name');
 
@@ -106,7 +115,7 @@ view.init = function(){
     }
   }
 
-  recurseViews(bodyView);
+  recurseViews(bodyView);**/
 };
 
 /**
@@ -147,7 +156,7 @@ View.prototype.child = function(name){
  */
 
 View.prototype.hasChildren = function(){
-  return this.children.length;
+  return !!this.children.length;
 }
 
 /**
