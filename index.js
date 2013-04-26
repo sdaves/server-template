@@ -3,8 +3,11 @@
  * Module dependencies.
  */
 
-var reactive = require('reactive')
-  , Emitter  = require('tower-emitter');
+var Emitter  = require('tower-emitter')
+  , Binding  = require('tower-data-binding')
+  , Mixin    = require('part-mixin')
+  , run      = require('tower-run-loop')
+  , context  = require('./lib/context');
 
 /**
  * Expose `view`.
@@ -13,76 +16,20 @@ var reactive = require('reactive')
 exports = module.exports = view;
 
 /**
- * Registry of all contexts.
- *
- * @type {Object}
- */
-
-exports.contexts = {};
-
-/**
- * Create or retrieve an existing context.
- *
- * @param {String} name
- */
-
-function context(name, parent) {
-  if (!name) throw new Error("You need to specify a name within a context.");
-
-  if (exports.contexts[name]) return exports.contexts[name];
-
-  return exports.contexts[name] = new Context({
-      name: name
-    , parent: parent
-  });
-}
-
-/**
- * Instantiate a new `Context`.
- *
- * @param {Object} options
- */
-
-function Context(options) {
-  this.name = options.name;
-  this.parent = context(options.parent);
-  this.children = {};
-  this.scope = new Scope();
-}
-
-/**
- * Setter
- */
-
-Context.prototype.set = function() {
-
-};
-
-/**
- * Getter
- */
-
-Context.prototype.get = function() {
-
-};
-
-/**
- * Instantiate a new `Scope`.
- */
-
-function Scope() {
-
-}
-
-//Emitter(Scope.prototype);
-
-/**
  * Registry of all the views.
  *
  * @type {Object}
  */
 
 exports.views = {};
+
+/**
+ * Export the context module.
+ *
+ * @type {Context}
+ */
+
+exports.context = context;
 
 /**
  * Create or retrieve an existing view.
@@ -105,51 +52,22 @@ function view(name) {
   return exports.views[name] = instance;
 }
 
+
 /**
- * Initialize the client-side views. This means we have
- * to re-render most elements to provide data-bindings.
+ * Mixin an Emitter
  *
- * The setup is pretty simple. All views that were not rendered
- * by the server are contained within `script` tags inside the
- * `body` element. `<script type="text/view" data-view="name"></script>`
+ * @type {Mixin}
+ */
+
+Emitter(view);
+
+/**
+ * Initialize the view rendering. Instead of doing it manually, were
+ * going to batch the rendering from within the runloop so that bindings
+ * have time to propagate and all the values are up-to-date.
  *
- * The rendered views are contained within the `body` element.
- * There can be many views there.
  *
- * We need to first find all the
- * views not-rendered and tag each view instance with the script
- * element we find.
  *
- * Second, we need to find all the views that are rendered.
- * And we can tag each view instance with the view element.
- *
- * Each binding coming from the server (data-each, etc...) will have
- * it's own template (the original binding markup) within `script`
- * tags. We need to first, clean the DOM up (remove looped elements)
- * and remove the template and place the original markup back into the
- * DOM.
- *
- * Once we cleaned everything up, we can proceed to rendering
- * the view. We need to first see what views they are wanting to
- * render. Chances are that the views coming from the server are
- * the same, but we still need to double check.
- *
- * We render each view
- *  - Remove sub-views (place them within script tags or
- *    similar to the server rendering.)
- *  - Render each binding within a view
- *  - Implement events (has priority because a user might
- *    already be trying to click on elements or perform actions.)
- *  - Replace the sub-views back
- *  - Render the sub-views (repeat view rendering)
- *  (Fire appropriate events - like when the views are rendered or
- *  before they are rendered and after.)
- *
- * + Find the top most view ('body') and find it's children.
- *   If it's children are not rendered, then render them, otherwise
- *   render the children.
- *
- * @return {[type]}
  */
 
 view.init = function(){
