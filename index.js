@@ -161,13 +161,37 @@ function View(options) {
   this.swapContainers = [];
   this.rendering = false;
   this.renderable = false;
+  this.initialized = false;
 
   if ('body' === this.name) {
     this.elem = $('body');
   }
 }
 
+/**
+ * Mixin the Emitter class
+ */
+
 Emitter(View.prototype);
+
+/**
+ * Initialize the view instance. This will initialize all the
+ * binding maps and child-views.
+ *
+ * @return {View}
+ */
+
+View.prototype.init = function() {
+
+  if (!this.initialized) {
+    this.emit('init', this);
+
+
+
+  }
+
+  return this;
+};
 
 /**
  * Create a new child view.
@@ -193,6 +217,8 @@ View.prototype.hasChildren = function(){
 
 /**
  * Render the current view and apply all it's bindings.
+ *
+ * @return {View}
  */
 
 View.prototype.render = function() {
@@ -215,6 +241,8 @@ View.prototype.render = function() {
   this.rendering = false;
   // Let everyone know that.
   this.emit('after rendering', this);
+
+  return this;
 };
 
 /**
