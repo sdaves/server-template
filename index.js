@@ -67,6 +67,30 @@ view.clear = function() {
 };
 
 /**
+ * Global render function that outsources most of the work
+ * to the individual views. Bindings can, however, be outside
+ * a view and thus need to be handled at a global scope.
+ *
+ * This method is called by the runloop to ensure that all
+ * bindings are bound correctly with new values.
+ *
+ * @return {Boolean}
+ */
+view.render = function() {
+  // Let everyone know that were rendering.
+  view.emit('before rendering');
+
+  // XXX Render Logic
+
+
+  // XXX End of Render Logic
+
+  // Let everyone know that were done rendering.
+  view.emit('after rendering');
+  return true;
+};
+
+/**
  * Mixin an Emitter
  *
  * @type {Mixin}
