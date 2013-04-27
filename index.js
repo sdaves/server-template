@@ -9,7 +9,7 @@ var Emitter  = require('tower-emitter')
   , run      = require('tower-run-loop')
   , context  = require('./lib/context');
 
-
+console.log(1);
 run.queues.push('render');
 
 /**
@@ -135,6 +135,8 @@ function View(options) {
   this.state = options.state || 'not rendered';
   this.elem = $(options.elem) || null;
   this.swapContainers = [];
+  this.rendering = false;
+  this.renderable = false;
 
   if ('body' === this.name) {
     this.elem = $('body');
@@ -163,7 +165,33 @@ View.prototype.child = function(name){
 
 View.prototype.hasChildren = function(){
   return !!this.children.length;
-}
+};
+
+/**
+ * Render the current view and apply all it's bindings.
+ */
+
+View.prototype.render = function() {
+  // Cannot render this view as it doesn't need to be
+  // rendered. This typicall means it's not activated yet (
+  // i.e within a script tag.)
+  if (!this.renderable) return false;
+
+  // Let everyone know were rendering.
+  this.rendering = true;
+  // Emit that were rendering.
+  this.emit('before rendering', this);
+
+  // XXX Render Logic
+
+
+  // XXX End of Render Logic
+
+  // Were done rendering.
+  this.rendering = false;
+  // Let everyone know that.
+  this.emit('after rendering', this);
+};
 
 /**
  * Swap a view with another view.
