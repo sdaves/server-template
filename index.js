@@ -1,13 +1,13 @@
-
 /**
  * Module dependencies.
  */
 
-var Emitter  = require('tower-emitter')
-  , Binding  = require('tower-data-binding')
-  , Mixin    = require('part-mixin')
-  , run      = require('tower-run-loop')
-  , context  = require('./lib/context');
+var Emitter = require('tower-emitter'),
+  Binding = require('tower-data-binding'),
+  Mixin = require('part-mixin'),
+  run = require('tower-run-loop'),
+  context = require('./lib/context'),
+  nextTick = run.nextTick;
 
 /**
  * Push a new render queue to the runloop.
@@ -51,11 +51,12 @@ function view(name, elem) {
   if (exports.views[name]) return exports.views[name];
 
   var instance = new View({
-      name: name
-    , elem: elem
+    name: name,
+    elem: elem
     // XXX: Not sure if `rendered` should mean visible or ready
     //      I'm currently setting it as visible.
-    , rendered: ('body' === name) ? true : false
+    ,
+    rendered: ('body' === name) ? true : false
   });
 
   view.emit('defined', instance);
@@ -100,7 +101,7 @@ view.render = function() {
  * Add a permanent action to the `render` queue.
  */
 
-run.add('render', view.render);
+run.add('render', nextTick, null, [view.render]);
 
 /**
  * Mixin an Emitter
@@ -119,49 +120,55 @@ Emitter(view);
  *
  */
 
-view.init = function(){
+view.init = function() {
   view.emit('init');
 
+  view.initializeChildren(true);
+};
 
-  // Loop through each view that's rendered.
 
+view.find = function(elem, child, parent) {
+  var views = []
+    , target_attr = '[view]'
+    , _elem = elem;
 
-  // Find all the non-rendered views and their instance.
-  /**$(document).find('script[type="text/view"]').each(function(){
-    var elem = $(this)
-      , name = elem.attr('name');
+  if (elem === true) {
+    elem = $(target_attr);
+  } else {
+    elem = elem.find(target_attr);
+  }
 
-    view(name)._state('not rendered');
-    view(name).elem = elem;
-  });
-
-  $(document).find('[view]').each(function(){
+  elem.filter(function() {
+    // XXX: This is the slower method.
+    if (child && parent) {
+      var p = $(this).parents('[view=' + parent.name + ']').length;
+      return !!p;
+    }
+    if (_elem !== true)
+      return $(this).find(target_attr).length;
+    else
+      return !$(this).parents(target_attr).length;
+  }).each(function() {
     var elem = $(this)
       , name = elem.attr('view');
 
-    // Set the state to `rendered`
-    view(name)._state('rendered');
-    view(name).elem = elem;
+    views.push({
+        name: name
+      , elem: elem
+    });
   });
 
-  var bodyView = view('body');
+  return views;
+}
 
-  function recurseViews(viewObj, parent) {
-    if (!parent) parent = viewObj;
 
-    if ('not rendered' === viewObj.state) {
-      parent.elem.append(viewObj.elem);
-    }
+view.initializeChildren = function() {
+  var views = view.find.apply(view, arguments);
 
-    if (viewObj.hasChildren()) {
-      for (var key in viewObj.children) {
-        var child = viewObj.children[key];
-        recurseViews(child, parent);
-      }
-    }
-  }
-
-  recurseViews(bodyView);**/
+  views.forEach(function(_view) {
+    view(_view.name).elem = _view.elem;
+    view(_view.name).init();
+  });
 };
 
 /**
@@ -179,12 +186,12 @@ function View(options) {
   this.rendering = false;
   this.renderable = false;
   this.initialized = false;
+  this._caches = [];
 
   if ('body' === this.name) {
     this.elem = $('body');
   }
 
-  this.init();
 }
 
 /**
@@ -202,13 +209,11 @@ Emitter(View.prototype);
 
 View.prototype.init = function() {
 
+  var self = this;
+
   if (!this.initialized) {
     this.initialized = true;
     this.emit('init', this);
-
-    if (!this.elem) {
-      this.elem = $('[view="' + this.name + '"]');
-    }
 
     var parent = this.elem.parent('script[type="text/view"]');
 
@@ -222,7 +227,10 @@ View.prototype.init = function() {
       this.rendered = false;
     }
 
+    console.log(this.name);
 
+    // Find the children:
+    view.initializeChildren(this.elem, true, this);
   }
 
   return this;
@@ -234,7 +242,7 @@ View.prototype.init = function() {
  * @param {String} name View name
  */
 
-View.prototype.child = function(name){
+View.prototype.child = function(name) {
   if (this.children[name]) return this;
   this.children.push(this.children[name] = view(name));
   return this;
@@ -246,7 +254,7 @@ View.prototype.child = function(name){
  * @return {Boolean}
  */
 
-View.prototype.hasChildren = function(){
+View.prototype.hasChildren = function() {
   return !!this.children.length;
 };
 
@@ -281,20 +289,75 @@ View.prototype.render = function() {
 };
 
 /**
+ * Perform view swapping on the current view.
+ * This will remove the current view within the swapping container.
+ * The swapping container is simply a DOM element with a `data-swap`.
+ *
+ * @param {String} from Container
+ *
+ */
+
+View.prototype.performSwap = function(from, cached) {
+
+}
+
+/**
  * Swap a view with another view.
  *
  * @param {String} from View to swap
  * @param {String} to   View to replace with.
  */
 
-View.prototype.swap = function(from, to){
+View.prototype.swap = function(from, to) {
 
-  if (this.swapContainers[from]) {
-    this.swapContainers[from] = view(to);
-    // XXX: Either force a render of that area (simply swapping & binding)
-    //      or batch it for the next render cycle.
+  // Swap an unnamed swapping container. `.swap('viewName');
+  if (arguments.length === 1) {
+    to = from;
+
+    console.log(this.swapContainers);
+
+
+    // Any swapping containers will be cached under _caches
+    if (this.swapContainers['__default__']) {
+      this.swapContainers = view(to);
+
+      var elem = this._caches['data-swap::__default__'];
+
+      if (elem) {
+        var parent = (elem.parent('script').length !== 0);
+
+        // Has script tag as it's parent.
+        if (parent) {
+
+        } else {
+
+          var clonedElem = elem.clone();
+          var scriptTag = $('<script type="text/swap"></script>');
+          scriptTag.html(clonedElem);
+
+          elem.append(scriptTag);
+          elem.remove();
+
+          console.log(1);
+
+        }
+
+      }
+
+    }
+
+  } else {
+
+    var cached = this.swapContainers[from];
+
+    if (this.swapContainers[from]) {
+      this.swapContainers[from] = view(to);
+      // Perform the swap.
+      this.performSwap(from, cached);
+    }
+
   }
 
-  this.children[from] = view(to);
+  //this.children[from] = view(to);
   return this;
 };
