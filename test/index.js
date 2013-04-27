@@ -16,22 +16,24 @@ describe('client view', function(){
     assert(view.context('global') === instance);
   });
 
-  it('should emit `defined` event on view creation.', function() {
+  it('should emit `defined` event on view creation.', function(done) {
     var newView;
 
     // XXX: Make the test fail if the callback doesn't fire.
     view.on('defined', function(instance) {
       assert(instance);
+      done();
     });
 
     newView = view('newView');
 
   });
 
-  it('should emit `init` event.', function() {
+  it('should emit `init` event.', function(done) {
 
     view.on('init', function() {
       assert(true);
+      done();
     });
 
     view.init();
@@ -73,8 +75,28 @@ describe('client view', function(){
     assert(!! view('body').elem);
   });
 
-  it('should has `not rendered` state before rendering.', function() {
-    assert(view('one').state === 'not rendered');
+  it('should not be rendered.', function() {
+    assert(view('oneT').rendered === false);
+  });
+
+  it('should add `render` queue within the runloop', function() {
+    view.run.queues.forEach(function(queue) {
+      if (queue === 'render') assert(queue === 'render');
+    });
+  });
+
+  it('should trigger `render` queue (runloop)', function(done) {
+
+    view.on('before rendering', function() {
+      assert(true);
+      done();
+    });
+
+    view.run(function() {
+      view.run.batch('sync', {h: 1}, 1233, function() {
+      });
+    });
+
   });
 
 });

@@ -21,6 +21,8 @@ run.queues.push('render');
 
 exports = module.exports = view;
 
+exports.run = run;
+
 /**
  * Registry of all the views.
  *
@@ -86,7 +88,6 @@ view.render = function() {
   view.emit('before rendering');
 
   // XXX Render Logic
-  console.log(1);
 
   // XXX End of Render Logic
 
@@ -212,7 +213,11 @@ View.prototype.init = function() {
     var parent = this.elem.parent('script[type="text/view"]');
 
     if (!parent.html()) {
-      this.rendered = true;
+      if (this.elem.length !== 0) {
+        this.rendered = true;
+      } else {
+        this.rendered = false;
+      }
     } else {
       this.rendered = false;
     }
