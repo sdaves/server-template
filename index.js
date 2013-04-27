@@ -80,12 +80,13 @@ view.clear = function() {
  *
  * @return {Boolean}
  */
+
 view.render = function() {
   // Let everyone know that were rendering.
   view.emit('before rendering');
 
   // XXX Render Logic
-
+  console.log(1);
 
   // XXX End of Render Logic
 
@@ -93,6 +94,12 @@ view.render = function() {
   view.emit('after rendering');
   return true;
 };
+
+/**
+ * Add a permanent action to the `render` queue.
+ */
+
+run.add('render', view.render);
 
 /**
  * Mixin an Emitter
