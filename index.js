@@ -53,7 +53,7 @@ function view(name, elem) {
     , elem: elem
     // XXX: Not sure if `rendered` should mean visible or ready
     //      I'm currently setting it as visible.
-    , state: ('body' === name) ? 'rendered' : 'not rendered'
+    , rendered: ('body' === name) ? true : false
   });
 
   view.emit('defined', instance);
@@ -165,7 +165,7 @@ view.init = function(){
 function View(options) {
   this.name = options.name;
   this.children = [];
-  this.state = options.state || 'not rendered';
+  this.rendered = options.rendered || false;
   this.elem = $(options.elem) || null;
   this.swapContainers = [];
   this.rendering = false;
@@ -206,10 +206,8 @@ View.prototype.init = function() {
 
     if (!parent.html()) {
       this.rendered = true;
-      this.state = 'rendered';
     } else {
       this.rendered = false;
-      this.state = 'not rendered';
     }
 
 
