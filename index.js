@@ -9,7 +9,10 @@ var Emitter  = require('tower-emitter')
   , run      = require('tower-run-loop')
   , context  = require('./lib/context');
 
-console.log(1);
+/**
+ * Push a new render queue to the runloop.
+ */
+
 run.queues.push('render');
 
 /**
@@ -49,6 +52,7 @@ function view(name, elem) {
       name: name
     , elem: elem
     // XXX: Not sure if `rendered` should mean visible or ready
+    //      I'm currently setting it as visible.
     , state: ('body' === name) ? 'rendered' : 'not rendered'
   });
 
@@ -109,6 +113,11 @@ Emitter(view);
 
 view.init = function(){
   view.emit('init');
+
+
+  // Loop through each view that's rendered.
+
+
   // Find all the non-rendered views and their instance.
   /**$(document).find('script[type="text/view"]').each(function(){
     var elem = $(this)
@@ -166,6 +175,8 @@ function View(options) {
   if ('body' === this.name) {
     this.elem = $('body');
   }
+
+  this.init();
 }
 
 /**
@@ -184,8 +195,22 @@ Emitter(View.prototype);
 View.prototype.init = function() {
 
   if (!this.initialized) {
+    this.initialized = true;
     this.emit('init', this);
 
+    if (!this.elem) {
+      this.elem = $('[view="' + this.name + '"]');
+    }
+
+    var parent = this.elem.parent('script[type="text/view"]');
+
+    if (!parent.html()) {
+      this.rendered = true;
+      this.state = 'rendered';
+    } else {
+      this.rendered = false;
+      this.state = 'not rendered';
+    }
 
 
   }
