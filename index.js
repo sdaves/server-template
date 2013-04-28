@@ -122,7 +122,6 @@ Emitter(view);
 
 view.init = function() {
   view.emit('init');
-
   view.initializeChildren(true);
 };
 
@@ -166,7 +165,7 @@ view.initializeChildren = function() {
   var views = view.find.apply(view, arguments);
 
   views.forEach(function(_view) {
-    view(_view.name).elem = _view.elem;
+    view(_view.name).elem.push(_view.elem);
     view(_view.name).init();
   });
 };
@@ -178,18 +177,23 @@ view.initializeChildren = function() {
  */
 
 function View(options) {
+  var self = this;
+
   this.name = options.name;
   this.children = [];
-  this.rendered = options.rendered || false;
-  this.elem = $(options.elem) || null;
+  this.rendered = [];
+  this.elem = [];
   this.swapContainers = [];
-  this.rendering = false;
-  this.renderable = false;
-  this.initialized = false;
-  this._caches = [];
+  this.rendering = [];
+  this.renderable = [];
+  this.initialized = [];
 
-  if ('body' === this.name) {
-    this.elem = $('body');
+  if (typeof options.elem === 'string') {
+    this.elem.push($(options.elem));
+  } else if (typeof options.elem === 'object' && options.elem.length) {
+    options.elem.forEach(function(elem) {
+      self.elem.push($(elem));
+    });
   }
 
 }
@@ -211,7 +215,9 @@ View.prototype.init = function() {
 
   var self = this;
 
-  if (!this.initialized) {
+  this.checkParents();
+
+  /**if (!this.initialized) {
     this.initialized = true;
     this.emit('init', this);
 
@@ -227,13 +233,27 @@ View.prototype.init = function() {
       this.rendered = false;
     }
 
-    console.log(this.name);
+    parent = this.elem.parent('[data-each],[each]');
+    console.log(parent);
+    if (parent.length) {
+      console.log(this.name);
+    }
 
     // Find the children:
     view.initializeChildren(this.elem, true, this);
   }
-
+**/
   return this;
+};
+
+
+View.prototype.checkParents = function() {
+  var self = this;
+
+  this.elem.forEach(function(elem) {
+    console.log(elem);
+  });
+
 };
 
 /**
