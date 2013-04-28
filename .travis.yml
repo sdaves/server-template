@@ -9,4 +9,5 @@ before_script:
   - npm install
   - component install -d
   - component build -d
-script: phantomjs test/index.html
+  - npm install testem -g
+script: testem

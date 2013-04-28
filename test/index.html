@@ -16,9 +16,14 @@
     <script src="../build/build.js"></script>
     <script>require('visionmedia-mocha')</script>
     <script>mocha.setup('bdd')</script>
+    <script src="/testem.js"></script>
     <script src="index.js"></script>
     <script>
-      mocha.run();
+      if (window.mochaPhantomJS) {
+        mochaPhantomJS.run();
+      } else {
+        mocha.run();
+      }
     </script>
   </body>
 </html>
