@@ -2,12 +2,12 @@
  * Module dependencies.
  */
 
-var Emitter = require('tower-emitter'),
-  Binding = require('tower-data-binding'),
-  Mixin = require('part-mixin'),
-  run = require('tower-run-loop'),
-  context = require('./lib/context'),
-  nextTick = run.nextTick;
+var Emitter = require('tower-emitter')
+  , binding = require('tower-data-binding').binding
+  , Mixin = require('part-mixin')
+  , run = require('tower-run-loop')
+  , context = require('./lib/context')
+  , nextTick = run.nextTick;
 
 /**
  * Push a new render queue to the runloop.
@@ -128,7 +128,7 @@ view.init = function() {
 
 view.find = function(elem, child, parent) {
   var views = []
-    , target_attr = '[view]'
+    , target_attr = '[view]:not([each],[data-each])'
     , _elem = elem;
 
   if (elem === true) {
@@ -138,6 +138,8 @@ view.find = function(elem, child, parent) {
   }
 
   elem.filter(function() {
+    var each = $(this).parents('[data-each],[each]');
+    if (!!each) return false;
     // XXX: This is the slower method.
     if (child && parent) {
       var p = $(this).parents('[view=' + parent.name + ']').length;
@@ -165,7 +167,11 @@ view.initializeChildren = function() {
   var views = view.find.apply(view, arguments);
 
   views.forEach(function(_view) {
-    view(_view.name).elem.push(_view.elem);
+    view(_view.name).elem.push({
+        name: _view.name
+      , elem: _view.elem
+      , ready: true
+    });
     view(_view.name).init();
   });
 };
@@ -184,15 +190,23 @@ function View(options) {
   this.rendered = [];
   this.elem = [];
   this.swapContainers = [];
-  this.rendering = [];
-  this.renderable = [];
-  this.initialized = [];
+  this.rendering = false;
+  this.renderable = true;
+  this.initialized = false;
 
   if (typeof options.elem === 'string') {
-    this.elem.push($(options.elem));
+    this.elem.push({
+        name: options.elem
+      , elem: $(options.elem)
+      , ready: true
+    });
   } else if (typeof options.elem === 'object' && options.elem.length) {
     options.elem.forEach(function(elem) {
-      self.elem.push($(elem));
+      self.elem.push({
+          name: elem
+        , elem: $(elem)
+        , ready: true
+      });
     });
   }
 
@@ -217,32 +231,19 @@ View.prototype.init = function() {
 
   this.checkParents();
 
-  /**if (!this.initialized) {
+  if (!this.initialized) {
     this.initialized = true;
     this.emit('init', this);
-
-    var parent = this.elem.parent('script[type="text/view"]');
-
-    if (!parent.html()) {
-      if (this.elem.length !== 0) {
-        this.rendered = true;
-      } else {
-        this.rendered = false;
-      }
-    } else {
-      this.rendered = false;
-    }
-
-    parent = this.elem.parent('[data-each],[each]');
-    console.log(parent);
-    if (parent.length) {
-      console.log(this.name);
-    }
 
     // Find the children:
     view.initializeChildren(this.elem, true, this);
   }
-**/
+
+
+  this.elem.forEach(function(elem) {
+    view.initializeChildren(elem.elem, true, self);
+  });
+
   return this;
 };
 
@@ -250,8 +251,10 @@ View.prototype.init = function() {
 View.prototype.checkParents = function() {
   var self = this;
 
-  this.elem.forEach(function(elem) {
-    console.log(elem);
+  this.elem.forEach(function(obj, i) {
+    if (!! obj.elem.parent('[data-each],[each]').length) {
+      self.elem[i].ready = false;
+    }
   });
 
 };
