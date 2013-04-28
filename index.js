@@ -313,7 +313,8 @@ View.prototype.render = function() {
   this.emit('before rendering', this);
 
   // XXX Render Logic
-  console.log(1);
+
+
 
   // XXX End of Render Logic
 
