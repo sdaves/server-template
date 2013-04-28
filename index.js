@@ -21,6 +21,12 @@ run.queues.push('render');
 
 exports = module.exports = view;
 
+/**
+ * Expose 'run' for ease of use.
+ *
+ * @type {Function}
+ */
+
 exports.run = run;
 
 /**
@@ -70,6 +76,7 @@ function view(name, elem) {
 
 view.clear = function() {
   exports.views = {};
+  // XXX: Maybe move this into `context.clear`?
   context.contexts = {};
 };
 
@@ -89,6 +96,9 @@ view.render = function() {
   view.emit('before rendering');
 
   // XXX Render Logic
+
+  // Begin with the global view ('body') and render inwards.
+  view('body').render();
 
   // XXX End of Render Logic
 
@@ -234,11 +244,7 @@ View.prototype.init = function() {
   if (!this.initialized) {
     this.initialized = true;
     this.emit('init', this);
-
-    // Find the children:
-    view.initializeChildren(this.elem, true, this);
   }
-
 
   this.elem.forEach(function(elem) {
     view.initializeChildren(elem.elem, true, self);
@@ -247,6 +253,14 @@ View.prototype.init = function() {
   return this;
 };
 
+/**
+ * Check if the parents are of an iteration loop.
+ * Set false to the elements ready key.
+ *
+ * XXX: This is being overwritten by the `view.find` method that
+ *      does the same thing but instead, never loads the view's
+ *      initialization, which might be better.
+ */
 
 View.prototype.checkParents = function() {
   var self = this;
@@ -299,7 +313,7 @@ View.prototype.render = function() {
   this.emit('before rendering', this);
 
   // XXX Render Logic
-
+  console.log(1);
 
   // XXX End of Render Logic
 
