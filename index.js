@@ -23,7 +23,7 @@ run.queues.push('render');
 exports = module.exports = view;
 
 /**
- * Expose 'run' for ease of use.
+ * Expose `run` for ease of use.
  *
  * @type {Function}
  */
@@ -63,7 +63,7 @@ function view(name, elem) {
     // XXX: Not sure if `rendered` should mean visible or ready
     //      I'm currently setting it as visible.
     ,
-    rendered: ('body' === name) ? true : false
+    rendered: 'body' === name
   });
 
   view.emit('defined', instance);
@@ -75,7 +75,7 @@ function view(name, elem) {
  * Clear all the registered views, events, and contexts.
  */
 
-view.clear = function() {
+view.clear = function(){
   exports.views = {};
   // XXX: Maybe move this into `context.clear`?
   context.contexts = {};
@@ -92,7 +92,7 @@ view.clear = function() {
  * @return {Boolean}
  */
 
-view.render = function() {
+view.render = function(){
   // Let everyone know that were rendering.
   view.emit('before rendering');
 
@@ -128,13 +128,13 @@ Emitter(view);
  * have time to propagate and all the values are up-to-date.
  */
 
-view.init = function() {
+view.init = function(){
   view.emit('init');
   view.initializeChildren(true);
 };
 
 
-view.find = function(elem, child, parent) {
+view.find = function(elem, child, parent){
   var views = []
     , target_attr = '[view]:not([each],[data-each])'
     , _elem = elem;
@@ -145,7 +145,7 @@ view.find = function(elem, child, parent) {
     elem = elem.find(target_attr);
   }
 
-  elem.filter(function() {
+  elem.filter(function(){
     var each = $(this).parents('[data-each],[each]');
     if (!!each) return false;
     // XXX: This is the slower method.
@@ -157,7 +157,7 @@ view.find = function(elem, child, parent) {
       return $(this).find(target_attr).length;
     else
       return !$(this).parents(target_attr).length;
-  }).each(function() {
+  }).each(function(){
     var elem = $(this)
       , name = elem.attr('view');
 
@@ -173,7 +173,7 @@ view.find = function(elem, child, parent) {
 view.initializeChildren = function(){
   var views = view.find.apply(view, arguments);
 
-  views.forEach(function(_view) {
+  views.forEach(function(_view){
     view(_view.name).elem.push({
         name: _view.name
       , elem: _view.elem
@@ -208,7 +208,7 @@ function View(options) {
       , ready: true
     });
   } else if (typeof options.elem === 'object' && options.elem.length) {
-    options.elem.forEach(function(elem) {
+    options.elem.forEach(function(elem){
       self.elem.push({
           name: elem
         , elem: $(elem)
