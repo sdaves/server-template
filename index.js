@@ -80,13 +80,14 @@ Emitter(exports);
 Emitter(View.prototype);
 
 /**
- * Clear all the registered views, events, and contexts.
+ * Initialize the view rendering. Instead of doing it manually, were
+ * going to batch the rendering from within the runloop so that bindings
+ * have time to propagate and all the values are up-to-date.
  */
 
-exports.clear = function(){
-  exports.views = {};
-  // XXX: Maybe move this into `context.clear`?
-  context.contexts = {};
+exports.init = function(){
+  view.emit('init');
+  view.initializeChildren(true);
 };
 
 /**
@@ -114,17 +115,6 @@ exports.render = function(){
   // Let everyone know that were done rendering.
   view.emit('after rendering');
   return true;
-};
-
-/**
- * Initialize the view rendering. Instead of doing it manually, were
- * going to batch the rendering from within the runloop so that bindings
- * have time to propagate and all the values are up-to-date.
- */
-
-exports.init = function(){
-  view.emit('init');
-  view.initializeChildren(true);
 };
 
 exports.find = function(elem, child, parent){
@@ -174,6 +164,16 @@ view.initializeChildren = function(){
     });
     view(_view.name).init();
   });
+};
+
+/**
+ * Clear all the registered views, events, and contexts.
+ */
+
+exports.clear = function(){
+  exports.views = {};
+  // XXX: Maybe move this into `context.clear`?
+  context.contexts = {};
 };
 
 /**
