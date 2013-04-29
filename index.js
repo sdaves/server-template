@@ -3,8 +3,18 @@
  * Module dependencies.
  */
 
-var reactive = require('reactive')
-  , Emitter = require('tower-emitter');
+var Emitter = require('tower-emitter')
+  , binding = require('tower-data-binding').binding
+  , Mixin = require('part-mixin')
+  , run = require('tower-run-loop')
+  , context = require('./lib/context')
+  , nextTick = run.nextTick;
+
+/**
+ * Push a new render queue to the runloop.
+ */
+
+run.queues.push('render');
 
 /**
  * Expose `view`.
@@ -13,68 +23,12 @@ var reactive = require('reactive')
 exports = module.exports = view;
 
 /**
- * Registry of all contexts.
+ * Expose 'run' for ease of use.
  *
- * @type {Object}
+ * @type {Function}
  */
 
-exports.contexts = {};
-
-/**
- * Create or retrieve an existing context.
- *
- * @param {String} name
- */
-
-function context(name, parent) {
-  if (!name) throw new Error("You need to specify a name within a context.");
-
-  if (exports.contexts[name]) return exports.contexts[name];
-
-  return exports.contexts[name] = new Context({
-      name: name
-    , parent: parent
-  });
-}
-
-/**
- * Instantiate a new `Context`.
- *
- * @param {Object} options
- */
-
-function Context(options) {
-  this.name = options.name;
-  this.parent = context(options.parent);
-  this.children = {};
-  this.scope = new Scope();
-}
-
-/**
- * Setter
- */
-
-Context.prototype.set = function() {
-
-};
-
-/**
- * Getter
- */
-
-Context.prototype.get = function() {
-
-};
-
-/**
- * Instantiate a new `Scope`.
- */
-
-function Scope() {
-
-}
-
-//Emitter(Scope.prototype);
+exports.run = run;
 
 /**
  * Registry of all the views.
@@ -85,110 +39,148 @@ function Scope() {
 exports.views = {};
 
 /**
+ * Export the context module.
+ *
+ * @type {Context}
+ */
+
+exports.context = context;
+
+/**
  * Create or retrieve an existing view.
  *
  * @param  {String} name View name
  */
 
-function view(name) {
+function view(name, elem) {
   if (!name) throw new Error("Views need a name.");
 
   if (exports.views[name]) return exports.views[name];
 
   var instance = new View({
-      name: name
-    , state: ('body' === name) ? 'rendered' : 'not rendered'
+    name: name,
+    elem: elem
+    // XXX: Not sure if `rendered` should mean visible or ready
+    //      I'm currently setting it as visible.
+    ,
+    rendered: ('body' === name) ? true : false
   });
 
-  // XXX: view.emit('defined', instance);
+  view.emit('defined', instance);
 
   return exports.views[name] = instance;
 }
 
 /**
- * Initialize the client-side views. This means we have
- * to re-render most elements to provide data-bindings.
- *
- * The setup is pretty simple. All views that were not rendered
- * by the server are contained within `script` tags inside the
- * `body` element. `<script type="text/view" data-view="name"></script>`
- *
- * The rendered views are contained within the `body` element.
- * There can be many views there.
- *
- * We need to first find all the
- * views not-rendered and tag each view instance with the script
- * element we find.
- *
- * Second, we need to find all the views that are rendered.
- * And we can tag each view instance with the view element.
- *
- * Each binding coming from the server (data-each, etc...) will have
- * it's own template (the original binding markup) within `script`
- * tags. We need to first, clean the DOM up (remove looped elements)
- * and remove the template and place the original markup back into the
- * DOM.
- *
- * Once we cleaned everything up, we can proceed to rendering
- * the view. We need to first see what views they are wanting to
- * render. Chances are that the views coming from the server are
- * the same, but we still need to double check.
- *
- * We render each view
- *  - Remove sub-views (place them within script tags or
- *    similar to the server rendering.)
- *  - Render each binding within a view
- *  - Implement events (has priority because a user might
- *    already be trying to click on elements or perform actions.)
- *  - Replace the sub-views back
- *  - Render the sub-views (repeat view rendering)
- *  (Fire appropriate events - like when the views are rendered or
- *  before they are rendered and after.)
- *
- * + Find the top most view ('body') and find it's children.
- *   If it's children are not rendered, then render them, otherwise
- *   render the children.
- *
- * @return {[type]}
+ * Clear all the registered views, events, and contexts.
  */
 
-view.init = function(){
-  // Find all the non-rendered views and their instance.
-  $(document).find('script[type="text/view"]').each(function(){
-    var elem = $(this)
-      , name = elem.attr('name');
+view.clear = function() {
+  exports.views = {};
+  // XXX: Maybe move this into `context.clear`?
+  context.contexts = {};
+};
 
-    view(name)._state('not rendered');
-    view(name).elem = elem;
-  });
+/**
+ * Global render function that outsources most of the work
+ * to the individual views. Bindings can, however, be outside
+ * a view and thus need to be handled at a global scope.
+ *
+ * This method is called by the runloop to ensure that all
+ * bindings are bound correctly with new values.
+ *
+ * @return {Boolean}
+ */
 
-  $(document).find('[view]').each(function(){
+view.render = function() {
+  // Let everyone know that were rendering.
+  view.emit('before rendering');
+
+  // XXX Render Logic
+
+  // Begin with the global view ('body') and render inwards.
+  view('body').render();
+
+  // XXX End of Render Logic
+
+  // Let everyone know that were done rendering.
+  view.emit('after rendering');
+  return true;
+};
+
+/**
+ * Add a permanent action to the `render` queue.
+ */
+
+run.add('render', nextTick, null, [view.render]);
+
+/**
+ * Mixin an Emitter
+ *
+ * @type {Mixin}
+ */
+
+Emitter(view);
+
+/**
+ * Initialize the view rendering. Instead of doing it manually, were
+ * going to batch the rendering from within the runloop so that bindings
+ * have time to propagate and all the values are up-to-date.
+ */
+
+view.init = function() {
+  view.emit('init');
+  view.initializeChildren(true);
+};
+
+
+view.find = function(elem, child, parent) {
+  var views = []
+    , target_attr = '[view]:not([each],[data-each])'
+    , _elem = elem;
+
+  if (elem === true) {
+    elem = $(target_attr);
+  } else {
+    elem = elem.find(target_attr);
+  }
+
+  elem.filter(function() {
+    var each = $(this).parents('[data-each],[each]');
+    if (!!each) return false;
+    // XXX: This is the slower method.
+    if (child && parent) {
+      var p = $(this).parents('[view=' + parent.name + ']').length;
+      return !!p;
+    }
+    if (_elem !== true)
+      return $(this).find(target_attr).length;
+    else
+      return !$(this).parents(target_attr).length;
+  }).each(function() {
     var elem = $(this)
       , name = elem.attr('view');
 
-    // Set the state to `rendered`
-    view(name)._state('rendered');
-    view(name).elem = elem;
+    views.push({
+        name: name
+      , elem: elem
+    });
   });
 
-  var bodyView = view('body');
+  return views;
+}
 
-  function recurseViews(viewObj, parent) {
-    if (!parent) parent = viewObj;
+view.initializeChildren = function(){
+  var views = view.find.apply(view, arguments);
 
-    if ('not rendered' === viewObj.state) {
-      parent.elem.append(viewObj.elem);
-    }
-
-    if (viewObj.hasChildren()) {
-      for (var key in viewObj.children) {
-        var child = viewObj.children[key];
-        recurseViews(child, parent);
-      }
-    }
-  }
-
-  recurseViews(bodyView);
+  views.forEach(function(_view) {
+    view(_view.name).elem.push({
+        name: _view.name
+      , elem: _view.elem
+      , ready: true
+    });
+    view(_view.name).init();
+  });
 };
 
 /**
@@ -198,17 +190,83 @@ view.init = function(){
  */
 
 function View(options) {
+  var self = this;
+
   this.name = options.name;
   this.children = [];
-  this.state = options.state || 'not rendered';
-  this.elem = null;
+  this.rendered = [];
+  this.elem = [];
+  this.swapContainers = [];
+  this.rendering = false;
+  this.renderable = true;
+  this.initialized = false;
 
-  if ('body' === this.name) {
-    this.elem = $('body');
+  if (typeof options.elem === 'string') {
+    this.elem.push({
+        name: options.elem
+      , elem: $(options.elem)
+      , ready: true
+    });
+  } else if (typeof options.elem === 'object' && options.elem.length) {
+    options.elem.forEach(function(elem) {
+      self.elem.push({
+          name: elem
+        , elem: $(elem)
+        , ready: true
+      });
+    });
   }
 }
 
+/**
+ * Mixin the Emitter class
+ */
+
 Emitter(View.prototype);
+
+/**
+ * Initialize the view instance. This will initialize all the
+ * binding maps and child-views.
+ *
+ * @return {View}
+ */
+
+View.prototype.init = function(){
+  var self = this;
+
+  this.checkParents();
+
+  if (!this.initialized) {
+    this.initialized = true;
+    this.emit('init', this);
+  }
+
+  this.elem.forEach(function(elem){
+    view.initializeChildren(elem.elem, true, self);
+  });
+
+  return this;
+};
+
+/**
+ * Check if the parents are of an iteration loop.
+ * Set false to the elements ready key.
+ *
+ * XXX: This is being overwritten by the `view.find` method that
+ *      does the same thing but instead, never loads the view's
+ *      initialization, which might be better.
+ */
+
+View.prototype.checkParents = function(){
+  var self = this;
+
+  this.elem.forEach(function(obj, i){
+    if (!! obj.elem.parent('[data-each],[each]').length) {
+      self.elem[i].ready = false;
+    }
+  });
+
+};
 
 /**
  * Create a new child view.
@@ -229,20 +287,52 @@ View.prototype.child = function(name){
  */
 
 View.prototype.hasChildren = function(){
-  return this.children.length;
-}
+  return !!this.children.length;
+};
 
 /**
- * Set or get the current state
+ * Render the current view and apply all it's bindings.
  *
- * @param {String} state
  * @return {View}
  */
 
-View.prototype._state = function(state){
-  this.state = state;
+View.prototype.render = function(){
+  // Cannot render this view as it doesn't need to be
+  // rendered. This typicall means it's not activated yet (
+  // i.e within a script tag.)
+  if (!this.renderable) return false;
+
+  // Let everyone know were rendering.
+  this.rendering = true;
+  // Emit that were rendering.
+  this.emit('before rendering', this);
+
+  // XXX Render Logic
+
+
+
+  // XXX End of Render Logic
+
+  // Were done rendering.
+  this.rendering = false;
+  // Let everyone know that.
+  this.emit('after rendering', this);
+
   return this;
 };
+
+/**
+ * Perform view swapping on the current view.
+ * This will remove the current view within the swapping container.
+ * The swapping container is simply a DOM element with a `data-swap`.
+ *
+ * @param {String} from Container
+ *
+ */
+
+View.prototype.performSwap = function(from, cached){
+
+}
 
 /**
  * Swap a view with another view.
@@ -252,6 +342,46 @@ View.prototype._state = function(state){
  */
 
 View.prototype.swap = function(from, to){
-  this.children[from] = view(to);
+  // Swap an unnamed swapping container. `.swap('viewName');
+  if (1 === arguments.length) {
+    to = from;
+
+    console.log(this.swapContainers);
+
+    // Any swapping containers will be cached under _caches
+    if (this.swapContainers['__default__']) {
+      this.swapContainers = view(to);
+
+      var elem = this._caches['data-swap::__default__'];
+
+      if (elem) {
+        var parent = (elem.parent('script').length !== 0);
+
+        // Has script tag as it's parent.
+        if (parent) {
+
+        } else {
+          var clonedElem = elem.clone();
+          var scriptTag = $('<script type="text/swap"></script>');
+          scriptTag.html(clonedElem);
+
+          elem.append(scriptTag);
+          elem.remove();
+
+          console.log(1);
+        }
+      }
+    }
+  } else {
+    var cached = this.swapContainers[from];
+
+    if (this.swapContainers[from]) {
+      this.swapContainers[from] = view(to);
+      // Perform the swap.
+      this.performSwap(from, cached);
+    }
+  }
+
+  //this.children[from] = view(to);
   return this;
 };

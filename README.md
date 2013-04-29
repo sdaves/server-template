@@ -1,5 +1,8 @@
 # Tower View (Client)
 
+[![Build Status](https://travis-ci.org/tower/client-view.png)](https://travis-ci.org/tower/client-view)
+
+
 ## Installation
 
 ```

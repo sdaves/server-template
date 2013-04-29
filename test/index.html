@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Reactive</title>
+    <title>Tower Client-View</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../build/build.css" />
   </head>
@@ -16,9 +16,14 @@
     <script src="../build/build.js"></script>
     <script>require('visionmedia-mocha')</script>
     <script>mocha.setup('bdd')</script>
+    <script src="/testem.js"></script>
     <script src="index.js"></script>
     <script>
-      mocha.run();
+      if (window.mochaPhantomJS) {
+        mochaPhantomJS.run();
+      } else {
+        mocha.run();
+      }
     </script>
   </body>
 </html>

@@ -5,15 +5,25 @@
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
-    "component/reactive": "*",
-    "tower/emitter": "*"
+    "tower/data-binding": "*",
+    "tower/run-loop": "*",
+    "tower/emitter": "*",
+    "part/mixin": "*"
   },
+  "local": [
+    "data-binding",
+    "runloop"
+  ],
+  "paths": [
+    "../"
+  ],
   "development": {
     "component/assert": "*",
     "visionmedia/mocha": "*"
   },
   "scripts": [
-    "index.js"
+    "index.js",
+    "lib/context.js"
   ],
   "license": "MIT"
 }
