@@ -11,16 +11,16 @@ var Emitter = require('tower-emitter')
   , nextTick = run.nextTick;
 
 /**
- * Push a new render queue to the runloop.
- */
-
-run.queues.push('render');
-
-/**
  * Expose `view`.
  */
 
 exports = module.exports = view;
+
+/**
+ * Expose `View`.
+ */
+
+exports.View = View;
 
 /**
  * Expose `run` for ease of use.
@@ -72,10 +72,17 @@ function view(name, elem) {
 }
 
 /**
+ * Mixin `Emitter`.
+ */
+
+Emitter(exports);
+Emitter(View.prototype);
+
+/**
  * Clear all the registered views, events, and contexts.
  */
 
-view.clear = function(){
+exports.clear = function(){
   exports.views = {};
   // XXX: Maybe move this into `context.clear`?
   context.contexts = {};
@@ -92,7 +99,7 @@ view.clear = function(){
  * @return {Boolean}
  */
 
-view.render = function(){
+exports.render = function(){
   // Let everyone know that were rendering.
   view.emit('before rendering');
 
@@ -109,32 +116,17 @@ view.render = function(){
 };
 
 /**
- * Add a permanent action to the `render` queue.
- */
-
-run.add('render', nextTick, null, [view.render]);
-
-/**
- * Mixin an Emitter
- *
- * @type {Mixin}
- */
-
-Emitter(view);
-
-/**
  * Initialize the view rendering. Instead of doing it manually, were
  * going to batch the rendering from within the runloop so that bindings
  * have time to propagate and all the values are up-to-date.
  */
 
-view.init = function(){
+exports.init = function(){
   view.emit('init');
   view.initializeChildren(true);
 };
 
-
-view.find = function(elem, child, parent){
+exports.find = function(elem, child, parent){
   var views = []
     , target_attr = '[view]:not([each],[data-each])'
     , _elem = elem;
@@ -221,12 +213,6 @@ function View(options) {
 }
 
 /**
- * Mixin the Emitter class
- */
-
-Emitter(View.prototype);
-
-/**
  * Initialize the view instance. This will initialize all the
  * binding maps and child-views.
  *
@@ -267,7 +253,6 @@ View.prototype.checkParents = function(){
       self.elem[i].ready = false;
     }
   });
-
 };
 
 /**
@@ -387,3 +372,15 @@ View.prototype.swap = function(from, to){
   //this.children[from] = view(to);
   return this;
 };
+
+/**
+ * Push a new render queue to the runloop.
+ */
+
+run.queues.push('render');
+
+/**
+ * Add a permanent action to the `render` queue.
+ */
+
+run.add('render', nextTick, null, [view.render]);
