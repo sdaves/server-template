@@ -201,13 +201,15 @@ function View(options) {
   this.renderable = true;
   this.initialized = false;
 
-  if (typeof options.elem === 'string') {
+  var type = typeof(options.elem);
+
+  if ('string' === type) {
     this.elem.push({
         name: options.elem
       , elem: $(options.elem)
       , ready: true
     });
-  } else if (typeof options.elem === 'object' && options.elem.length) {
+  } else if ('object' === type && options.elem.length) {
     options.elem.forEach(function(elem){
       self.elem.push({
           name: elem
