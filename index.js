@@ -103,6 +103,7 @@ exports.init = function(){
 
 exports.render = function(){
   // Let everyone know that were rendering.
+  // XXX: change to `before render`?
   view.emit('before rendering');
 
   // XXX Render Logic
@@ -221,8 +222,6 @@ function View(options) {
  */
 
 View.prototype.init = function(){
-  var self = this;
-
   this.checkParents();
 
   if (!this.initialized) {
@@ -230,9 +229,9 @@ View.prototype.init = function(){
     this.emit('init', this);
   }
 
-  this.elem.forEach(function(elem){
-    view.initializeChildren(elem.elem, true, self);
-  });
+  for (var i = 0, n = this.elem.length; i < n; i++) {
+    view.initializeChildren(this.elem[i].elem, true, this);
+  };
 
   return this;
 };
