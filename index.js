@@ -66,7 +66,8 @@ function view(name, elem) {
     rendered: 'body' === name
   });
 
-  view.emit('defined', instance);
+  view.emit('define ' + name, instance);
+  view.emit('define', instance);
 
   return exports.views[name] = instance;
 }
