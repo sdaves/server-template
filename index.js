@@ -104,7 +104,7 @@ exports.init = function(){
 exports.render = function(){
   // Let everyone know that were rendering.
   // XXX: change to `before render`?
-  view.emit('before rendering');
+  view.emit('before render');
 
   // XXX Render Logic
 
@@ -114,7 +114,7 @@ exports.render = function(){
   // XXX End of Render Logic
 
   // Let everyone know that were done rendering.
-  view.emit('after rendering');
+  view.emit('after render');
   return true;
 };
 
@@ -292,7 +292,7 @@ View.prototype.render = function(){
   // Let everyone know were rendering.
   this.rendering = true;
   // Emit that were rendering.
-  this.emit('before rendering', this);
+  this.emit('before render', this);
 
   // XXX Render Logic
 
@@ -303,7 +303,7 @@ View.prototype.render = function(){
   // Were done rendering.
   this.rendering = false;
   // Let everyone know that.
-  this.emit('after rendering', this);
+  this.emit('after render', this);
 
   return this;
 };
@@ -355,7 +355,6 @@ View.prototype.swap = function(from, to){
           elem.append(scriptTag);
           elem.remove();
 
-          console.log(1);
         }
       }
     }
