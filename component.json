@@ -5,14 +5,12 @@
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
-    "tower/data-binding": "*",
-    "tower/run-loop": "*",
     "tower/emitter": "*",
     "part/mixin": "*"
   },
   "local": [
     "data-binding",
-    "runloop"
+    "run-loop"
   ],
   "paths": [
     "../"
