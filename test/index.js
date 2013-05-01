@@ -16,10 +16,20 @@ describe('client view', function(){
     assert(view.context('global') === instance);
   });
 
-  it('should emit `defined` event on view creation.', function(done){
+  it('should emit `define` event on view creation.', function(done){
     var newView;
 
     view.on('define', function(instance){
+      done();
+    });
+
+    newView = view('newView');
+  });
+
+  it('should emit `define newView` event on view creation.', function(done){
+    var newView;
+
+    view.on('define newView', function(instance){
       done();
     });
 
@@ -75,9 +85,10 @@ describe('client view', function(){
   });
 
   it('should add `render` queue within the runloop', function(){
-    view.run.queues.forEach(function(queue){
-      if (queue === 'render') assert(queue === 'render');
-    });
+    var containsRenderQueueName =
+      view.run.queues.indexOf('render') !== -1;
+
+    assert(true === containsRenderQueueName);
   });
 
   it('should trigger `render` queue (runloop)', function(done){
@@ -88,6 +99,5 @@ describe('client view', function(){
     view.run(function(){
       view.run.batch('sync', {}, 1233, function(){ });
     });
-
   });
 });
