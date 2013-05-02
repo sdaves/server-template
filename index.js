@@ -36,7 +36,7 @@ exports.run = run;
  * @type {Object}
  */
 
-exports.views = {};
+exports.collection = [];
 
 /**
  * Export the context module.
@@ -54,22 +54,23 @@ exports.context = context;
 
 function view(name, elem) {
   if (!name) throw new Error("Views need a name.");
+  if (exports.collection[name]) return exports.collection[name];
 
-  if (exports.views[name]) return exports.views[name];
-
-  var instance = new View({
+  var obj = new View({
     name: name,
-    elem: elem
+    elem: elem,
     // XXX: Not sure if `rendered` should mean visible or ready
     //      I'm currently setting it as visible.
-    ,
     rendered: 'body' === name
   });
 
-  view.emit('define ' + name, instance);
-  view.emit('define', instance);
+  exports.collection[name] = obj;
+  // exports.collection.push(obj);
 
-  return exports.views[name] = instance;
+  view.emit('define ' + name, obj);
+  view.emit('define', obj);
+
+  return obj;
 }
 
 /**
@@ -86,8 +87,8 @@ Emitter(View.prototype);
  */
 
 exports.init = function(){
-  view.emit('init');
-  view.initializeChildren(true);
+  exports.emit('init');
+  exports.initializeChildren(true);
 };
 
 /**
@@ -104,17 +105,17 @@ exports.init = function(){
 exports.render = function(){
   // Let everyone know that were rendering.
   // XXX: change to `before render`?
-  view.emit('before render');
+  exports.emit('before render');
 
   // XXX Render Logic
 
   // Begin with the global view ('body') and render inwards.
-  view('body').render();
+  exports('body').render();
 
   // XXX End of Render Logic
 
   // Let everyone know that were done rendering.
-  view.emit('after render');
+  exports.emit('after render');
   return true;
 };
 
@@ -154,7 +155,7 @@ exports.find = function(elem, child, parent){
   return views;
 }
 
-view.initializeChildren = function(){
+exports.initializeChildren = function(){
   var views = view.find.apply(view, arguments);
 
   views.forEach(function(_view){
@@ -172,7 +173,7 @@ view.initializeChildren = function(){
  */
 
 exports.clear = function(){
-  exports.views = {};
+  exports.collection = {};
   // XXX: Maybe move this into `context.clear`?
   context.contexts = {};
 };
