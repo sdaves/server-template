@@ -22,28 +22,22 @@ exports = module.exports = view;
 exports.View = View;
 
 /**
- * Expose `run` for ease of use.
- *
- * @type {Function}
- */
-
-exports.run = run;
-
-/**
- * Registry of all the views.
- *
- * @type {Object}
+ * Expose `collection`.
  */
 
 exports.collection = [];
 
 /**
- * Export the context module.
- *
- * @type {Context}
+ * Expose `context`.
  */
 
 exports.context = context;
+
+/**
+ * Expose `run`.
+ */
+
+exports.run = run;
 
 /**
  * Create or retrieve an existing view.
@@ -369,6 +363,17 @@ View.prototype.swap = function(from, to){
   //this.children[from] = view(to);
   return this;
 };
+
+/**
+ * Dom selector where event handling is delegated.
+ *
+ * @param {String} name
+ */
+
+View.prototype.dispatcher = function(name){
+  this._dispatcher = name;
+  return this;
+}
 
 /**
  * Push a new render queue to the runloop.
