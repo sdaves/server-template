@@ -5,7 +5,6 @@
 
 var Emitter = require('tower-emitter')
   , binding = require('tower-data-binding').binding
-  , Mixin = require('part-mixin')
   , run = require('tower-run-loop')
   , context = require('./lib/context')
   , nextTick = run.nextTick;
@@ -67,8 +66,8 @@ function view(name, elem) {
   exports.collection[name] = obj;
   // exports.collection.push(obj);
 
-  view.emit('define ' + name, obj);
-  view.emit('define', obj);
+  exports.emit('define ' + name, obj);
+  exports.emit('define', obj);
 
   return obj;
 }
@@ -104,7 +103,6 @@ exports.init = function(){
 
 exports.render = function(){
   // Let everyone know that were rendering.
-  // XXX: change to `before render`?
   exports.emit('before render');
 
   // XXX Render Logic
@@ -355,7 +353,6 @@ View.prototype.swap = function(from, to){
 
           elem.append(scriptTag);
           elem.remove();
-
         }
       }
     }
