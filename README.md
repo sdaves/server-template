@@ -26,6 +26,10 @@ Then view `test/index.html` in the browser:
 open test/index.html
 ```
 
+## Notes
+
+Data-binding occurs purely on the DOM and has no dependence no "views". This means the `view` doesn't have any data binding code. This `view` module just provides a simple API to the DOM.
+
 ## License
 
 MIT

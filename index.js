@@ -77,6 +77,8 @@ Emitter(View.prototype);
  * Initialize the view rendering. Instead of doing it manually, were
  * going to batch the rendering from within the runloop so that bindings
  * have time to propagate and all the values are up-to-date.
+ *
+ * XXX: Maybe call this `boot` (since `init` is for `new X`).
  */
 
 exports.init = function(){
@@ -113,14 +115,12 @@ exports.render = function(){
 
 exports.find = function(elem, child, parent){
   var views = []
-    , target_attr = '[view]:not([each],[data-each])'
+    , attr = '[view]:not([each],[data-each])'
     , _elem = elem;
 
-  if (elem === true) {
-    elem = $(target_attr);
-  } else {
-    elem = elem.find(target_attr);
-  }
+  elem = true === elem
+    ? $(attr)
+    : elem.find(attr);
 
   elem.filter(function(){
     var each = $(this).parents('[data-each],[each]');
@@ -130,10 +130,10 @@ exports.find = function(elem, child, parent){
       var p = $(this).parents('[view=' + parent.name + ']').length;
       return !!p;
     }
-    if (_elem !== true)
-      return $(this).find(target_attr).length;
-    else
-      return !$(this).parents(target_attr).length;
+
+    return true !== _elem
+      ? $(this).find(attr).length
+      : !$(this).parents(attr).length;
   }).each(function(){
     var elem = $(this)
       , name = elem.attr('view');
@@ -148,7 +148,7 @@ exports.find = function(elem, child, parent){
 }
 
 exports.initializeChildren = function(){
-  var views = view.find.apply(view, arguments);
+  var views = exports.find.apply(exports, arguments);
 
   views.forEach(function(_view){
     view(_view.name).elem.push({
@@ -288,9 +288,7 @@ View.prototype.render = function(){
   this.emit('before render', this);
 
   // XXX Render Logic
-
-
-
+  this.emit('render', this);
   // XXX End of Render Logic
 
   // Were done rendering.
