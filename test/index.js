@@ -1,103 +1,53 @@
-var view = 'undefined' == typeof window ? require('..') : require('tower-view')
-  , assert = require('component-assert');
 
-describe('client view', function(){
-  afterEach(function(){
-    view.clear();
-  });
+var view = require('view');
+var View = view.View;
+var assert = require('timoxley-assert');
+var query = require('component-query');
+var events = require('component-event');
 
-  it('should create a new view instance.', function(){
-    var instance = view('body');
-    assert(view('body') === instance);
-  });
+describe('view', function(){
+  describe('bindings', function(){
+    it('should traverse dom and add bindings', function(){
+      var data = {
+        users: [
+          { name: 'foo' },
+          { name: 'bar' }
+        ]
+      };
 
-  it('should create a new context instance.', function(){
-    var instance = view.context('global');
-    assert(view.context('global') === instance);
-  });
-
-  it('should emit `define` event on view creation.', function(done){
-    var newView;
-
-    view.on('define', function(instance){
-      done();
+      var list = new View(query('ul'), data);
+      assert('ul' === list.el.tagName.toLowerCase());
+      list.bind('each');
+      assert(1 === list.bindings.length);
+      assert(2 === query.all('li', list.el).length);
     });
 
-    newView = view('newView');
-  });
-
-  it('should emit `define newView` event on view creation.', function(done){
-    var newView;
-
-    view.on('define newView', function(instance){
-      done();
+    it('should bind `data-title`', function(){
+      var list = new View(query('ol'), { info: 'foo' });
+      list.bind('data-title');
+      assert(1 === list.bindings.length);
+      assert('foo' === query('a', list.el).title);
     });
-
-    newView = view('newView');
   });
 
-  it('should emit `init` event.', function(done){
-    view.on('init', function(){
-      done();
-    });
+  describe('events', function(){
+    it('should handle `click` event', function(done){
+      var el = query('ul');
+      view('new-list')
+        .on('click', function(event){
+          assert('new-list' === event.ctx.name);
+          assert('foo' === event.passThrough);
+          done();
+        });
 
-    view.init();
-  });
+      var list = view('new-list').init(el);
 
-  it('should define 1 children view', function(){
-    var instance = view('body')
-      .child('app');
-
-    assert(instance.children[0] === view('app'));
-  });
-
-  it('should define more than one child view.', function(){
-    var instance = view('body')
-      .child('app')
-      .child('melon');
-
-    assert(instance.children[0] === view('app'));
-    assert(instance.children[1] === view('melon'));
-  });
-
-  it('should return true if view has children.', function(){
-    var instance = view('body')
-      .child('app');
-
-    assert(instance.hasChildren() === true);
-  });
-
-  it('should return false if view has no children.', function(){
-    var instance = view('body');
-
-    assert(instance.hasChildren() === false);
-  });
-
-  it('should set body element if view name is body', function(){
-    view('body');
-
-    assert(!! view('body').elem);
-  });
-
-  it('should not be rendered.', function(){
-    // XXX:
-    //assert(view('oneT').rendered === false);
-  });
-
-  it('should add `render` queue within the runloop', function(){
-    var containsRenderQueueName =
-      view.run.queues.indexOf('render') !== -1;
-
-    assert(true === containsRenderQueueName);
-  });
-
-  it('should trigger `render` queue (runloop)', function(done){
-    view.on('before render', function(){
-      done();
-    });
-
-    view.run(function(){
-      view.run.batch('sync', {}, 1233, function(){ });
+      var event = document.createEvent('UIEvent');
+      event.initUIEvent('click', true, true);
+      event.clientX = 5;
+      event.clientY = 10;
+      event.passThrough = 'foo';
+      el.dispatchEvent(event);
     });
   });
 });

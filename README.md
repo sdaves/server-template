@@ -5,19 +5,19 @@
 
 ## Installation
 
-```
-component install tower/view
+```bash
+$ component install tower/view
 ```
 
 ## Example
 
-## Testing
+## Running Tests
 
 For client-side testing, build:
 
-```
-component install -d
-component build -d
+```bash
+$ component install -d
+$ component build -d
 ```
 
 Then view `test/index.html` in the browser:
