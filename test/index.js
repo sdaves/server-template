@@ -1,7 +1,7 @@
 
-var view = require('view');
+var view = require('tower-view');
 var View = view.View;
-var assert = require('timoxley-assert');
+var assert = require('component-assert');
 var query = require('component-query');
 var events = require('component-event');
 

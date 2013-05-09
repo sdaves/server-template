@@ -6,19 +6,19 @@
     <link rel="stylesheet" href="../build/build.css" />
   </head>
   <body>
+    <ol><li><a data-title="info" href="#"></a></li></ol>
+    <ul><li each="user in users"></li></ul>
     <div id="mocha"></div>
     <div id='parent'>
       <div id='child'>
 
       </div>
     </div>
-    <ul><li each="user in users"></li></ul>
-    <ol><li><a data-title="info" href="#"></a></li></ol>
     <script src="http://code.jquery.com/jquery-2.0.0.min.js"></script>
     <script src="../build/build.js"></script>
     <script>require('visionmedia-mocha')</script>
     <script>mocha.setup('bdd')</script>
-    <script src="/testem.js"></script>
+    <!-- don't have this setup yet <script src="/testem.js"></script> -->
     <script src="index.js"></script>
     <script>
       if (window.mochaPhantomJS) {
