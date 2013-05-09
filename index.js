@@ -4,8 +4,7 @@
  */
 
 var Emitter = require('tower-emitter')
-  , binding = require('tower-data-binding').binding
-  , run = require('tower-run-loop')
+  , binding = require('tower-binding')
   , context = require('./lib/context')
   , nextTick = run.nextTick;
 
