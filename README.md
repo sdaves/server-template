@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/tower/client-view.png)](https://travis-ci.org/tower/client-view)
 
-
 ## Installation
 
 ```bash
@@ -35,4 +34,3 @@ Data-binding occurs purely on the DOM and has no dependence no "views". This mea
 MIT
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/tower/client-view/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
