@@ -53,6 +53,7 @@ function view(name) {
   View.toString = function(){
     return 'view("' + name + '")';
   }
+  View.children = [];
 
   // statics
   for (var key in statics) View[key] = statics[key];
@@ -80,7 +81,7 @@ Emitter(proto);
  * @param {String} name View name
  */
 
-proto.child = function(name){
+statics.child = function(name){
   if (this.children[name]) return this;
   this.children.push(this.children[name] = exports(name));
   return this;
