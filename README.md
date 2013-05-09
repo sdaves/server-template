@@ -33,3 +33,6 @@ Data-binding occurs purely on the DOM and has no dependence no "views". This mea
 ## License
 
 MIT
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/tower/client-view/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
