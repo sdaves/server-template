@@ -4,9 +4,9 @@
  */
 
 var Emitter = require('tower-emitter')
-  , event = require('event')
   , proto = require('./lib/proto')
-  , statics = require('./lib/statics');
+  , statics = require('./lib/statics')
+  , constants = require('./lib/constants');
 
 /**
  * Expose `view`.
@@ -21,39 +21,39 @@ exports = module.exports = view;
 exports.collection = [];
 
 /**
- * Get a view constructor.
+ * Expose `attrs`.
+ */
+
+exports.attrs = constants.attrs;
+
+/**
+ * Expose `events`.
+ */
+
+exports.events = constants.events;
+
+/**
+ * Get a `View`.
  */
 
 function view(name) {
   if (exports.collection[name]) return exports.collection[name];
 
-  function View(el, data) {
+  function View(el, data, options) {
     this.name = name;
     this.el = el;
     this.data = data;
     this.bindings = [];
-
-    // XXX: tmp, getting a feel for it.
-    //      should be much more optimized than this.
-    var click = View.listeners('click');
-    if (click.length) {
-      var self = this;
-      event.bind(el, 'click', function(e){
-        e.ctx = self; // `e.view` is taken.
-        for (var i = 0, n = click.length; i < n; i++) {
-          click[i](e);
-        }
-      });
+    if (View._dispatcher) this.dispatcher = View._dispatcher;
+    if (options) {
+      for (var key in options) this[key] = options[key];
     }
+    this.addDOMListeners();
   }
 
   View.prototype = {};
   View.prototype.constructor = View;
   View.id = name;
-  View.toString = function(){
-    return 'view("' + name + '")';
-  }
-  View.children = [];
 
   // statics
   for (var key in statics) View[key] = statics[key];
@@ -76,6 +76,12 @@ Emitter(statics);
 Emitter(proto);
 
 /**
+ * Expose `View`.
+ */
+
+exports.View = view('anonymous');
+
+/**
  * Create a new child view.
  *
  * @param {String} name View name
@@ -86,12 +92,6 @@ statics.child = function(name){
   this.children.push(this.children[name] = exports(name));
   return this;
 };
-
-/**
- * Expose `View`.
- */
-
-exports.View = view('anonymous');
 
 /**
  * Clear all the registered views, events, and contexts.

@@ -19,7 +19,8 @@
     "index.js",
     "lib/proto.js",
     "lib/statics.js",
-    "lib/bindings.js"
+    "lib/bindings.js",
+    "lib/constants.js"
   ],
   "license": "MIT"
 }
