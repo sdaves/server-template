@@ -4,15 +4,15 @@
  */
 
 var Emitter = require('tower-emitter')
+  , scope = require('tower-scope')
   , proto = require('./lib/proto')
-  , statics = require('./lib/statics')
-  , constants = require('./lib/constants');
+  , statics = require('./lib/statics');
 
 /**
- * Expose `view`.
+ * Expose `controller`.
  */
 
-exports = module.exports = view;
+exports = module.exports = controller;
 
 /**
  * Expose `collection`.
@@ -21,50 +21,31 @@ exports = module.exports = view;
 exports.collection = [];
 
 /**
- * Expose `attrs`.
+ * Get a `Controller`.
  */
 
-exports.attrs = constants.attrs;
-
-/**
- * Expose `events`.
- */
-
-exports.events = constants.events;
-
-/**
- * Get a `View`.
- */
-
-function view(name) {
+function controller(name) {
   if (exports.collection[name]) return exports.collection[name];
 
-  function View(el, data, options) {
+  function Controller(_scope) {
     this.name = name;
-    this.el = el;
-    this.data = data;
-    this.bindings = [];
-    if (View._dispatcher) this.dispatcher = View._dispatcher;
-    if (options) {
-      for (var key in options) this[key] = options[key];
-    }
-    this.addDOMListeners();
+    this.scope = _scope;
   }
 
-  View.prototype = {};
-  View.prototype.constructor = View;
-  View.id = name;
+  Controller.prototype = {};
+  Controller.prototype.constructor = Controller;
+  Controller.id = name;
 
   // statics
-  for (var key in statics) View[key] = statics[key];
+  for (var key in statics) Controller[key] = statics[key];
 
   // proto
-  for (var key in proto) View.prototype[key] = proto[key];
+  for (var key in proto) Controller.prototype[key] = proto[key];
 
-  exports.collection[name] = View;
-  exports.collection.push(View);
-  exports.emit('define', View);
-  return View;
+  exports.collection[name] = Controller;
+  exports.collection.push(Controller);
+  exports.emit('define', Controller);
+  return Controller;
 }
 
 /**
@@ -76,25 +57,7 @@ Emitter(statics);
 Emitter(proto);
 
 /**
- * Expose `View`.
- */
-
-exports.View = view('anonymous');
-
-/**
- * Create a new child view.
- *
- * @param {String} name View name
- */
-
-statics.child = function(name){
-  if (this.children[name]) return this;
-  this.children.push(this.children[name] = exports(name));
-  return this;
-};
-
-/**
- * Clear all the registered views, events, and contexts.
+ * Clear all the registered controllers, events, and contexts.
  */
 
 exports.clear = function(){
