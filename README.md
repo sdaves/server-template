@@ -29,6 +29,13 @@ open test/index.html
 
 Data-binding occurs purely on the DOM and has no dependence no "views". This means the `view` doesn't have any data binding code. This `view` module just provides a simple API to the DOM.
 
+- http://jsperf.com/apply-vs-call-vs-invoke/13
+- https://github.com/angular/angular.js/pull/1198
+- http://ngmodules.org/all
+- https://github.com/yeoman/generator-angular/issues/109
+- https://github.com/angular/angular-component-spec
+- http://www.codinghorror.com/blog/2008/05/understanding-model-view-controller.html
+
 ## License
 
 MIT
