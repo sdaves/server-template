@@ -16,11 +16,7 @@
     "visionmedia/mocha": "*"
   },
   "scripts": [
-    "index.js",
-    "lib/proto.js",
-    "lib/statics.js",
-    "lib/bindings.js",
-    "lib/constants.js"
+    "index.js"
   ],
   "license": "MIT"
 }
