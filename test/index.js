@@ -75,6 +75,19 @@ describe('template', function(){
     });
   });
 
+  describe('data-scope', function(){
+    it('should create a nested scope', function(){
+      assert(false === scope.defined('custom'));
+      scope('custom')
+        .attr('foo', 'string', 'Custom Scope Property!');
+      var fn = template(query('#custom-scope'));
+      //var customScope = scope('custom').init();
+      //console.log(customScope)
+      //console.log(customScope.get('foo'));
+      fn(scope.root());
+    });
+  });
+
   after(function(){
     //document.body.removeChild(query('#tests'));
   });

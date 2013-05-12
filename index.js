@@ -82,6 +82,8 @@ function compileEach(children, scope) {
 function compileDirectives(node) {
   var directives = getDirectives(node);
 
+  // figure out if a new scope should be created
+
   function directivesFn(scope, node) {
     // XXX: maybe we can collect the directives in reverse
     //      and then use a `while` loop.
