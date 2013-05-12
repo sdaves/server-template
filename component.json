@@ -5,10 +5,10 @@
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
-    "tower/binding": "*",
     "tower/emitter": "*",
+    "tower/scope": "*",
+    "tower/directive": "*",
     "component/query": "*",
-    "component/event": "*",
     "part/each-array": "*"
   },
   "development": {
