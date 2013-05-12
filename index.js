@@ -11,7 +11,13 @@ var scopes = require('tower-scope')
  * Expose `template`.
  */
 
-module.exports = template;
+exports = module.exports = template;
+
+/**
+ * Expose `compile`.
+ */
+
+exports.compile = compile;
 
 /**
  * Compile a DOM element's directives to a function.
