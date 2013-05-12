@@ -1,7 +1,7 @@
 {
   "name": "tower-view",
-  "repo": "tower/client-view",
-  "description": "Tower client-side views.",
+  "repo": "tower/template",
+  "description": "Tower templates.",
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
