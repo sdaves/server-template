@@ -89,6 +89,20 @@ describe('template', function(){
     });
   });
 
+  it('should clone', function(){
+    scope.root().set('clonedDirective', 'Cloneable Directive Text');
+
+    var element = query('#should-clone');
+    var fn = template(element);
+    var notClone = fn(scope.root());
+    assert(notClone === element);
+    var fn = template(element, true);
+    // XXX: not quite right b/c the original node is also updating.
+    var clone = fn(scope.root());
+    assert(clone !== element);
+    assert('Cloneable Directive Text' === query('span', clone).textContent);
+  });
+
   after(function(){
     //document.body.removeChild(query('#tests'));
   });

@@ -23,12 +23,14 @@ exports.compile = compile;
  * Compile a DOM element's directives to a function.
  *
  * @param {HTMLNode} node
+ * @param {Boolean} clone If true, every time the template
+ *    is executed, it will clone the initial node passed in.
  * @return {Function}
  * @api public
  */
 
-function template(node) {
-  return compile(node || document.body);
+function template(node, clone) {
+  return compile(node || document.body, clone);
 }
 
 /**
@@ -48,7 +50,7 @@ function compile(node, clone) {
     : undefined;
 
   function nodeFn(scope) {
-    var returnNode = node;// clone ? node.cloneNode(true) : node;
+    var returnNode = clone ? node.cloneNode(true) : node;
 
     // apply directives to node.
     scope = directivesFn(scope, returnNode);
