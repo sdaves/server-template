@@ -17,7 +17,8 @@ describe('template', function(){
       element.setAttribute('title', scope[attr.value]);
     });
 
-    template(document.body, scope('random').init({ foo: 'Foo', bar: 'Bar' }));
+    var fn = template(document.body);
+    fn(scope('random').init({ foo: 'Foo', bar: 'Bar' }));
 
     assert('Foo' === query('#should-execute-all').title);
     assert('Bar' === query('#should-execute-all span').textContent);
@@ -30,7 +31,8 @@ describe('template', function(){
 
     scope.root().set('foo', 'Hello World');
 
-    template(document.body);
+    var fn = template(document.body);
+    fn(scope.root());
 
     assert('Hello World' === query('#should-use-root-scope').innerHTML);
   });
@@ -40,7 +42,8 @@ describe('template', function(){
       assert(true === directive.defined('data-text'));
       var root = scope.root();
       root.set('textDirective', 'Text Directive');
-      template(query('#directives'), root);
+      var fn = template(query('#directives'));
+      fn(root);
       assert('Text Directive' === query('#data-text-directive span').textContent);
     });
 
@@ -49,7 +52,8 @@ describe('template', function(){
       assert(true === directive.defined('data-title'));
       var root = scope.root();
       root.set('attrDirective', 'Attribute Directive');
-      template(query('#directives'), root);
+      var fn = template(query('#directives'));
+      fn(root);
       assert('Attribute Directive' === query('#data-attr-directive a').title);
     });
 
@@ -59,7 +63,8 @@ describe('template', function(){
       root.set('eventDirective', function(){
         done();
       });
-      template(query('#directives'), root);
+      var fn = template(query('#directives'));
+      fn(root);
 
       var event = document.createEvent('UIEvent');
       event.initUIEvent('click', true, true);
@@ -70,16 +75,7 @@ describe('template', function(){
     });
   });
 
-  describe('compile', function(){
-    it('should compile directives', function(){
-      var root = scope.root();
-      root.textDirective = 'Text Directive!';
-      root.attrDirective = 'Attr Directive!';
-      template(query('#compile'), root);
-    });
-  });
-
   after(function(){
-    document.body.removeChild(query('#tests'));
+    //document.body.removeChild(query('#tests'));
   });
 });

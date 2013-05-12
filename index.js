@@ -23,17 +23,12 @@ exports.compile = compile;
  * Compile a DOM element's directives to a function.
  *
  * @param {HTMLNode} node
- * @param {Scope} scope
  * @return {Function}
  * @api public
  */
 
-function template(node, scope) {
-  // XXX: impl `part/is-dom-node` http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
-  //      for dynamic arguments
-  node || (node = document.body);
-  scope || (scope = scopes.root());
-  return compile(node, scope);
+function template(node) {
+  return compile(node || document.body);
 }
 
 /**
@@ -44,35 +39,72 @@ function template(node, scope) {
  * @param {Scope} scope
  */
 
-function compile(node, scope) {
-  if (isArray(node)) return compileEach(node, scope);
+function compile(node, clone) {
+  var directivesFn = compileDirectives(node);
+  
+  // recursive
+  var eachFn = node.childNodes
+    ? compileEach(node.childNodes, scope)
+    : undefined;
 
-  var directives = compileNode(node);
-  if (directives.length) exec(node, directives, scope);
-    // recursive
-  if (node.childNodes) compileEach(node.childNodes, scope);
-  return node;
+  function nodeFn(scope) {
+    var returnNode = node;// clone ? node.cloneNode(true) : node;
+
+    // apply directives to node.
+    directivesFn(scope, returnNode);
+
+    // recurse, apply directives to children.
+    if (eachFn && returnNode.childNodes)
+      eachFn(scope, returnNode.childNodes);
+
+    return returnNode;
+  }
+
+  return nodeFn;
 }
 
 function compileEach(children, scope) {
+  var fns = [];
   for (var i = 0, n = children.length; i < n; i++) {
-    compile(children[i], scope);
+    fns.push(compile(children[i]));
   }
-  return children;
+
+  function eachFn(scope, children) {
+    for (var i = 0, n = fns.length; i < n; i++) {
+      // XXX: not sure this is correct.
+      fns[i](scope, children[i]);
+    }
+  }
+
+  return eachFn;
 }
 
-function compileNode(node) {
+function compileDirectives(node) {
+  var directives = getDirectives(node);
+
+  function directivesFn(scope, node) {
+    // XXX: maybe we can collect the directives in reverse
+    //      and then use a `while` loop.
+    for (var i = 0, n = directives.length; i < n; i++) {
+      directives[i].exec(scope, node);
+    }
+  }
+
+  return directivesFn;
+}
+
+function getDirectives(node) {
   var directives = [];
 
   switch (node.nodeType) {
     case 1: // element node
-      // first, add directive named after node, if it exists.
-      add(node.nodeName.toLowerCase(), directives);
-      compileAttributes(node, directives);
+      // first, appendDirective directive named after node, if it exists.
+      appendDirective(node.nodeName.toLowerCase(), directives);
+      getDirectivesFromAttributes(node, directives);
       break;
     case 3: // text node
       // node.nodeValue
-      add('interpolation', directives);
+      appendDirective('interpolation', directives);
       break;
     case 8: // comment node
       //
@@ -83,7 +115,7 @@ function compileNode(node) {
   return directives;
 }
 
-function compileAttributes(node, directives) {
+function getDirectivesFromAttributes(node, directives) {
   var attr;
   for (var i = 0, n = node.attributes.length; i < n; i++) {
     attr = node.attributes[i];
@@ -93,7 +125,7 @@ function compileAttributes(node, directives) {
     // http://www.w3schools.com/dom/prop_attr_specified.asp
     // XXX: don't know what this does.
     if (!attr.specified) continue;
-    add(attr.name, directives);
+    appendDirective(attr.name, directives);
   }
 }
 
@@ -101,19 +133,9 @@ function compileAttributes(node, directives) {
  * Add directive.
  */
 
-function add(name, directives) {
+function appendDirective(name, directives) {
   if (directive.defined(name)) {
     directives.push(directive(name));
-  }
-}
-
-/**
- * Execute all directives.
- */
-
-function exec(node, directives, scope) {
-  for (var i = 0, n = directives.length; i < n; i++) {
-    directives[i].exec(scope, node);
   }
 }
 
