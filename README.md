@@ -13,7 +13,8 @@ $ component install tower/template
 ```js
 var template = require('tower-template');
 var element = document.querySelector('#todos');
-template(element); // directives are applied, returns same element.
+var fn = template(element);
+fn({ some: 'data' }); // applies "scope" (data) to DOM directives.
 ```
 
 ## Running Tests
