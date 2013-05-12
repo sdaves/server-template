@@ -14,7 +14,12 @@ var scopes = require('tower-scope')
 module.exports = template;
 
 /**
- * Compile a DOM element's directives.
+ * Compile a DOM element's directives to a function.
+ *
+ * @param {HTMLNode} node
+ * @param {Scope} scope
+ * @return {Function}
+ * @api public
  */
 
 function template(node, scope) {
@@ -61,7 +66,7 @@ function compileNode(node) {
       break;
     case 3: // text node
       // node.nodeValue
-      add('interpolate', directives);
+      add('interpolation', directives);
       break;
     case 8: // comment node
       //
