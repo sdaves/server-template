@@ -82,9 +82,10 @@ describe('template', function(){
         .attr('foo', 'string', 'Custom Scope Property!');
       var fn = template(query('#custom-scope'));
       //var customScope = scope('custom').init();
-      //console.log(customScope)
+      //console.log(customScope.foo)
       //console.log(customScope.get('foo'));
       fn(scope.root());
+      assert('Custom Scope Property!' === query('#custom-scope span').textContent);
     });
   });
 

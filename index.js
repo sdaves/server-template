@@ -51,7 +51,7 @@ function compile(node, clone) {
     var returnNode = node;// clone ? node.cloneNode(true) : node;
 
     // apply directives to node.
-    directivesFn(scope, returnNode);
+    scope = directivesFn(scope, returnNode);
 
     // recurse, apply directives to children.
     if (eachFn && returnNode.childNodes)
@@ -81,18 +81,44 @@ function compileEach(children, scope) {
 
 function compileDirectives(node) {
   var directives = getDirectives(node);
-
-  // figure out if a new scope should be created
+  var scopeFn = compileScopes(node, directives);
 
   function directivesFn(scope, node) {
+    scope = scopeFn(scope);
+
     // XXX: maybe we can collect the directives in reverse
     //      and then use a `while` loop.
     for (var i = 0, n = directives.length; i < n; i++) {
       directives[i].exec(scope, node);
     }
+
+    return scope;
   }
 
   return directivesFn;
+}
+
+function compileScopes(node, directives) {
+  var name; // XXX: maybe it needs to handle multiple scopes on a node?
+
+  for (var i = 0, n = directives.length; i < n; i++) {
+    if (name = directives[i]._scope) break;
+  }
+
+  if (name) {
+    if (true === name) {
+      // XXX: not sure best way to handle this yet.
+      name = node.getAttribute('data-scope');
+    }
+  }
+
+  function scopeFn(scope) {
+    if (!name) return scope;
+
+    return scopes(name).init({ parent: scope });
+  }
+
+  return scopeFn;
 }
 
 function getDirectives(node) {
