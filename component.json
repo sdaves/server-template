@@ -1,5 +1,5 @@
 {
-  "name": "tower-view",
+  "name": "tower-template",
   "repo": "tower/template",
   "description": "Tower templates.",
   "version": "0.0.1",
@@ -9,7 +9,7 @@
     "tower/scope": "*",
     "tower/directive": "*",
     "component/query": "*",
-    "part/each-array": "*"
+    "part/is-array": "*"
   },
   "development": {
     "component/assert": "*",

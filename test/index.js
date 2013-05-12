@@ -1,10 +1,13 @@
 
 var template = require('tower-template')
   , directive = require('tower-directive')
+  , scope = require('tower-scope')
   , assert = require('component-assert')
   , query = require('component-query');
 
 describe('template', function(){
+  beforeEach(directive.clear);
+  
   it('should execute all', function(){
     directive('data-text', function(scope, element, attr){
       element.textContent = scope[attr.value];
@@ -14,7 +17,7 @@ describe('template', function(){
       element.setAttribute('title', scope[attr.value]);
     });
 
-    directive.compile(scope('random').init({ foo: 'Foo', bar: 'Bar' }));
+    template(document.body, scope('random').init({ foo: 'Foo', bar: 'Bar' }));
 
     assert('Foo' === query('#should-execute-all').title);
     assert('Bar' === query('#should-execute-all span').textContent);
@@ -27,23 +30,9 @@ describe('template', function(){
 
     scope.root().set('foo', 'Hello World');
 
-    directive.compile();
+    template(document.body);
 
     assert('Hello World' === query('#should-use-root-scope').innerHTML);
-  });
-
-  it('should print "directive(name)" on instance.toString()', function(){
-    assert('directive("data-text")' === directive('data-text').toString());
-  });
-
-  it('should print "directive" on exports.toString()', function(){
-    assert('directive' === directive.toString());
-  });
-
-  it('should return `true` if `defined`', function(){
-    assert(false === directive.defined('data-random'));
-    directive('data-random', function(){});
-    assert(true === directive.defined('data-random'));
   });
 
   describe('directives', function(){
@@ -51,7 +40,7 @@ describe('template', function(){
       assert(true === directive.defined('data-text'));
       var root = scope.root();
       root.set('textDirective', 'Text Directive');
-      directive.compile(root, query('#directives'));
+      template(query('#directives'), root);
       assert('Text Directive' === query('#data-text-directive span').textContent);
     });
 
@@ -60,7 +49,7 @@ describe('template', function(){
       assert(true === directive.defined('data-title'));
       var root = scope.root();
       root.set('attrDirective', 'Attribute Directive');
-      directive.compile(root, query('#directives'));
+      template(query('#directives'), root);
       assert('Attribute Directive' === query('#data-attr-directive a').title);
     });
 
@@ -70,7 +59,7 @@ describe('template', function(){
       root.set('eventDirective', function(){
         done();
       });
-      directive.compile(root, query('#directives'));
+      template(query('#directives'), root);
 
       var event = document.createEvent('UIEvent');
       event.initUIEvent('click', true, true);
@@ -86,7 +75,7 @@ describe('template', function(){
       var root = scope.root();
       root.textDirective = 'Text Directive!';
       root.attrDirective = 'Attr Directive!';
-      directive.compile(query('#compile'), root);
+      template(query('#compile'), root);
     });
   });
 

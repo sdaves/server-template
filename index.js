@@ -18,6 +18,8 @@ module.exports = template;
  */
 
 function template(node, scope) {
+  // XXX: impl `part/is-dom-node` http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
+  //      for dynamic arguments
   node || (node = document.body);
   scope || (scope = scopes.root());
   return compile(node, scope);
@@ -43,7 +45,7 @@ function compile(node, scope) {
 
 function compileEach(children, scope) {
   for (var i = 0, n = children.length; i < n; i++) {
-    compile(children[i], node);
+    compile(children[i], scope);
   }
   return children;
 }
@@ -89,8 +91,8 @@ function compileAttributes(node, directives) {
  */
 
 function add(name, directives) {
-  if (exports.directive.defined(name)) {
-    directives.push(exports.directive(name));
+  if (directive.defined(name)) {
+    directives.push(directive(name));
   }
 }
 
