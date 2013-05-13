@@ -97,6 +97,9 @@ function compileDirectives(node) {
     // XXX: maybe we can collect the directives in reverse
     //      and then use a `while` loop.
     for (var i = 0, n = directives.length; i < n; i++) {
+      // XXX: or maybe the directive returns the scope.
+      //      that's probably better, b/c then directives
+      //      can easily create new scopes.
       directives[i].exec(scope, node);
     }
 
