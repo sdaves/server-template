@@ -100,7 +100,7 @@ function compileDirectives(node) {
       // XXX: or maybe the directive returns the scope.
       //      that's probably better, b/c then directives
       //      can easily create new scopes.
-      directives[i].exec(scope, node);
+      directives[i].exec(node, scope);
     }
 
     return scope;
