@@ -79,7 +79,7 @@ function compileNode(node) {
     returnNode || (returnNode = node);
 
     // apply directives to node.
-    scope = directivesFn(scope, returnNode);
+    if (directivesFn) scope = directivesFn(scope, returnNode);
 
     // recurse, apply directives to children.
     if (eachFn && returnNode.childNodes)
@@ -112,6 +112,8 @@ function compileDirectives(node) {
   var n = directives.length;
   var i;
 
+  if (!n) return; // don't execute function if unnecessary.
+
   function directivesFn(scope, node) {
     // XXX: maybe we can collect the directives in reverse
     //      and then use a `while` loop.
@@ -143,7 +145,7 @@ function getDirectives(node) {
       break;
   }
 
-  directives.sort(priority);
+  if (directives.length) directives.sort(priority);
   return directives;
 }
 
