@@ -101,4 +101,15 @@ describe('template', function(){
       assert('Custom Scope Property!' === query('#custom-scope span').textContent);
     });
   });
+
+  it('should allow passing new elements to existing template', function(){
+    var element = query('#existing-element');
+    var fn = template(element);
+    scope.root().set('helloWorld', 'Hello World!');
+    fn(scope.root());
+    assert('Hello World!' === element.textContent);
+    element = query('#new-element');
+    fn(scope.root(), element);
+    assert('Hello World!' === element.textContent);
+  });
 });
