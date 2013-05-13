@@ -5,15 +5,13 @@
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
-    "tower/emitter": "*",
     "tower/scope": "*",
-    "tower/directive": "*",
-    "component/query": "*",
-    "part/is-array": "*"
+    "tower/directive": "*"
   },
   "development": {
     "component/assert": "*",
-    "visionmedia/mocha": "*"
+    "visionmedia/mocha": "*",
+    "component/query": "*"
   },
   "scripts": [
     "index.js"

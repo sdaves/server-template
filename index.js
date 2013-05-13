@@ -4,8 +4,7 @@
  */
 
 var scopes = require('tower-scope')
-  , directive = require('tower-directive')
-  , isArray = require('part-is-array');
+  , directive = require('tower-directive');
 
 /**
  * Expose `template`.
