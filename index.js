@@ -13,6 +13,12 @@ var scopes = require('tower-scope')
 exports = module.exports = template;
 
 /**
+ * Expose `collection`.
+ */
+
+exports.collection = {};
+
+/**
  * Expose `compile`.
  */
 
@@ -21,6 +27,7 @@ exports.compile = compile;
 /**
  * Compile a DOM element's directives to a function.
  *
+ * @param {String} [name]
  * @param {HTMLNode} node
  * @param {Boolean} clone If true, every time the template
  *    is executed, it will clone the initial node passed in.
@@ -28,8 +35,13 @@ exports.compile = compile;
  * @api public
  */
 
-function template(node, clone) {
-  return compile(node || document.body, clone);
+function template(name, node, clone) {
+  // if `name` is a DOM node, arguments are shifted by 1
+  if ('string' !== typeof name) return compile(name, node);
+  // only 1 argument
+  if (undefined === node) return exports.collection[name];
+  // compile it
+  return exports.collection[name] = compile(node, clone);
 }
 
 /**

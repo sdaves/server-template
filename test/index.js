@@ -112,4 +112,11 @@ describe('template', function(){
     fn(scope.root(), element);
     assert('Hello World!' === element.textContent);
   });
+
+  it('should store templates by name', function(){
+    var fn1 = template('one', query('#name-one'));
+    var fn2 = template('two', query('#name-two'));
+    assert(fn1 === template('one'));
+    assert(fn2 === template('two'));
+  });
 });
