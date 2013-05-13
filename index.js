@@ -49,8 +49,15 @@ function compile(node, clone) {
     ? compileEach(node.childNodes, scope)
     : undefined;
 
-  function nodeFn(scope) {
-    var returnNode = clone ? node.cloneNode(true) : node;
+  // `returnNode` is used for recursively 
+  // passing children. this is used for cloning, 
+  // where it should apply the directives to 
+  // the new children, not the original 
+  // template's children.
+
+  function nodeFn(scope, returnNode) {
+    returnNode || (returnNode = node);
+    if (clone) returnNode = returnNode.cloneNode(true);
 
     // apply directives to node.
     scope = directivesFn(scope, returnNode);
