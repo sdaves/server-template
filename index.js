@@ -109,47 +109,20 @@ function compileEach(children, scope) {
 
 function compileDirectives(node) {
   var directives = getDirectives(node);
-  var scopeFn = compileScopes(node, directives);
+  var n = directives.length;
+  var i;
 
   function directivesFn(scope, node) {
-    scope = scopeFn(scope);
-
     // XXX: maybe we can collect the directives in reverse
     //      and then use a `while` loop.
-    for (var i = 0, n = directives.length; i < n; i++) {
-      // XXX: or maybe the directive returns the scope.
-      //      that's probably better, b/c then directives
-      //      can easily create new scopes.
-      directives[i].exec(node, scope);
+    for (i = 0; i < n; i++) {
+      scope = directives[i].exec(node, scope);
     }
 
     return scope;
   }
 
   return directivesFn;
-}
-
-function compileScopes(node, directives) {
-  var name; // XXX: maybe it needs to handle multiple scopes on a node?
-
-  for (var i = 0, n = directives.length; i < n; i++) {
-    if (name = directives[i]._scope) break;
-  }
-
-  if (name) {
-    if (true === name) {
-      // XXX: not sure best way to handle this yet.
-      name = node.getAttribute('data-scope');
-    }
-  }
-
-  function scopeFn(scope) {
-    if (!name) return scope;
-
-    return scopes(name).init({ parent: scope });
-  }
-
-  return scopeFn;
 }
 
 function getDirectives(node) {
