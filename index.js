@@ -51,6 +51,17 @@ function template(name, node) {
  */
 
 function compile(node) {
+  var nodeFn = compileNode(node);
+
+  // clone original element
+  nodeFn.clone = function clone(scope){
+    return nodeFn(scope, node.cloneNode(true));
+  }
+
+  return nodeFn;
+}
+
+function compileNode(node) {
   var directivesFn = compileDirectives(node);
   
   // recursive
@@ -77,18 +88,13 @@ function compile(node) {
     return returnNode;
   }
 
-  // clone original element
-  nodeFn.clone = function clone(scope){
-    return nodeFn(scope, node.cloneNode(true));
-  }
-
   return nodeFn;
 }
 
 function compileEach(children, scope) {
   var fns = [];
   for (var i = 0, n = children.length; i < n; i++) {
-    fns.push(compile(children[i]));
+    fns.push(compileNode(children[i]));
   }
 
   function eachFn(scope, children) {
