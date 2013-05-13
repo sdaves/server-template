@@ -12,8 +12,8 @@ describe('template', function(){
     scope.root().set('clonedDirective', 'Cloneable Directive Text');
 
     var element = query('#should-clone');
-    var fn = template(element, true);
-    var clone = fn(scope.root());
+    var fn = template(element);
+    var clone = fn.clone(scope.root());
     assert(clone !== element);
     // clone should have new text
     assert('Cloneable Directive Text' === query('span', clone).textContent);

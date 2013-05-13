@@ -29,19 +29,17 @@ exports.compile = compile;
  *
  * @param {String} [name]
  * @param {HTMLNode} node
- * @param {Boolean} clone If true, every time the template
- *    is executed, it will clone the initial node passed in.
  * @return {Function}
  * @api public
  */
 
-function template(name, node, clone) {
+function template(name, node) {
   // if `name` is a DOM node, arguments are shifted by 1
-  if ('string' !== typeof name) return compile(name, node);
+  if ('string' !== typeof name) return compile(name);
   // only 1 argument
   if (undefined === node) return exports.collection[name];
   // compile it
-  return exports.collection[name] = compile(node, clone);
+  return exports.collection[name] = compile(node);
 }
 
 /**
@@ -52,7 +50,7 @@ function template(name, node, clone) {
  * @param {Scope} scope
  */
 
-function compile(node, clone) {
+function compile(node) {
   var directivesFn = compileDirectives(node);
   
   // recursive
@@ -68,7 +66,6 @@ function compile(node, clone) {
 
   function nodeFn(scope, returnNode) {
     returnNode || (returnNode = node);
-    if (clone) returnNode = returnNode.cloneNode(true);
 
     // apply directives to node.
     scope = directivesFn(scope, returnNode);
@@ -78,6 +75,11 @@ function compile(node, clone) {
       eachFn(scope, returnNode.childNodes);
 
     return returnNode;
+  }
+
+  // clone original element
+  nodeFn.clone = function clone(scope){
+    return nodeFn(scope, node.cloneNode(true));
   }
 
   return nodeFn;
