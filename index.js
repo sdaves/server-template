@@ -97,34 +97,20 @@ function compileEach(children, scope) {
     fns.push(compileNode(children[i]));
   }
 
-  function eachFn(scope, children) {
-    for (var i = 0, n = fns.length; i < n; i++) {
-      // XXX: not sure this is correct.
-      fns[i](scope, children[i]);
-    }
-  }
-
-  return eachFn;
+  return createEachFn(fns);
 }
 
 function compileDirectives(node) {
   var directives = getDirectives(node);
-  var n = directives.length;
-  var i;
 
-  if (!n) return; // don't execute function if unnecessary.
+  if (!directives.length) return; // don't execute function if unnecessary.
 
-  function directivesFn(scope, node) {
-    // XXX: maybe we can collect the directives in reverse
-    //      and then use a `while` loop.
-    for (i = 0; i < n; i++) {
-      scope = directives[i].exec(node, scope);
-    }
-
-    return scope;
+  var fns = [];
+  for (i = 0, n = directives.length; i < n; i++) {
+    fns.push(directives[i].compile(node));
   }
 
-  return directivesFn;
+  return createDirectivesFn(fns);
 }
 
 function getDirectives(node) {
@@ -171,6 +157,41 @@ function appendDirective(name, directives) {
   if (directive.defined(name)) {
     directives.push(directive(name));
   }
+}
+
+/**
+ * Creates a template function for node children
+ * in an isolated JS scope.
+ */
+
+function createEachFn(fns) {
+  function eachFn(scope, children) {
+    for (var i = 0, n = fns.length; i < n; i++) {
+      // XXX: not sure this is correct.
+      fns[i](scope, children[i]);
+    }
+  }
+
+  return eachFn;
+}
+
+/**
+ * Creates a template function for node directives
+ * in an isolated JS scope.
+ */
+
+function createDirectivesFn(fns) {
+  function directivesFn(scope, node) {
+    // XXX: maybe we can collect the directives in reverse
+    //      and then use a `while` loop.
+    for (i = 0; i < n; i++) {
+      scope = fns[i](node, scope);
+    }
+
+    return scope;
+  }
+
+  return directivesFn;
 }
 
 /**
