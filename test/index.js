@@ -23,11 +23,11 @@ describe('template', function(){
 
   it('should execute all', function(){
     directive('data-text', function(scope, element, attr){
-      element.textContent = scope[attr.value];
+      element.textContent = scope.get(attr.value);
     });
 
     directive('data-title', function(scope, element, attr){
-      element.setAttribute('title', scope[attr.value]);
+      element.setAttribute('title', scope.get(attr.value));
     });
 
     var fn = template(document.body);
@@ -39,7 +39,7 @@ describe('template', function(){
 
   it('should use `scope("root")` if none is passed in', function(){
     directive('data-html', function(scope, element, attr){
-      element.innerHTML = scope[attr.value];
+      element.innerHTML = scope.get(attr.value);
     });
 
     scope.root().set('foo', 'Hello World');
@@ -72,12 +72,14 @@ describe('template', function(){
 
     it('should have event directives `on-[event]`', function(done){
       assert(true === directive.defined('on-click'));
-      var root = scope.root();
-      root.set('eventDirective', function(){
-        done();
-      });
+
+      scope('root')
+        .action('eventDirective', function(){
+          done();
+        });
+
       var fn = template(query('#directives'));
-      fn(root);
+      fn(scope.root());
 
       var event = document.createEvent('UIEvent');
       event.initUIEvent('click', true, true);
