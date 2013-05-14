@@ -66,7 +66,7 @@ function compileNode(node) {
   
   // recursive
   var eachFn = node.childNodes
-    ? compileEach(node.childNodes, scope)
+    ? compileEach(node.childNodes)
     : undefined;
 
   // `returnNode` is used for recursively 
@@ -91,7 +91,7 @@ function compileNode(node) {
   return nodeFn;
 }
 
-function compileEach(children, scope) {
+function compileEach(children) {
   var fns = [];
   for (var i = 0, n = children.length; i < n; i++) {
     fns.push(compileNode(children[i]));
