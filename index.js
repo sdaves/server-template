@@ -106,7 +106,7 @@ function compileDirectives(node) {
   if (!directives.length) return; // don't execute function if unnecessary.
 
   var fns = [];
-  for (i = 0, n = directives.length; i < n; i++) {
+  for (var i = 0, n = directives.length; i < n; i++) {
     fns.push(directives[i].compile(node));
   }
 
@@ -165,8 +165,10 @@ function appendDirective(name, directives) {
  */
 
 function createEachFn(fns) {
+  var n = fns.length, i;
+
   function eachFn(scope, children) {
-    for (var i = 0, n = fns.length; i < n; i++) {
+    for (i = 0; i < n; i++) {
       // XXX: not sure this is correct.
       fns[i](scope, children[i]);
     }
@@ -181,6 +183,8 @@ function createEachFn(fns) {
  */
 
 function createDirectivesFn(fns) {
+  var n = fns.length, i;
+
   function directivesFn(scope, node) {
     // XXX: maybe we can collect the directives in reverse
     //      and then use a `while` loop.
