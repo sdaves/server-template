@@ -3,8 +3,8 @@
  * Module dependencies.
  */
 
-var scopes = require('tower-scope')
-  , directive = require('tower-directive');
+var scopes = require('tower-scope');
+var directive = require('tower-directive');
 
 /**
  * Expose `template`.

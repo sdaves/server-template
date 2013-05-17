@@ -1,9 +1,9 @@
 
-var template = require('tower-template')
-  , directive = require('tower-directive')
-  , scope = require('tower-scope')
-  , assert = require('component-assert')
-  , query = require('component-query');
+var template = require('tower-template');
+var directive = require('tower-directive');
+var scope = require('tower-scope');
+var assert = require('component-assert');
+var query = require('component-query');
 
 describe('template', function(){
   beforeEach(directive.clear);
