@@ -32,6 +32,10 @@ Then view `test/index.html` in the browser:
 open test/index.html
 ```
 
+## Notes
+
+- http://www.jspatterns.com/the-ridiculous-case-of-adding-a-script-element/
+
 ## License
 
 MIT

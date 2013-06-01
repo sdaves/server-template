@@ -3,7 +3,7 @@
  * Module dependencies.
  */
 
-var scopes = require('tower-scope');
+var content = require('tower-content');
 var directive = require('tower-directive');
 
 /**
@@ -47,7 +47,7 @@ function template(name, node) {
  * and collect and execute directives.
  *
  * @param {DOMNode} node
- * @param {Scope} scope
+ * @param {Content} scope
  */
 
 function compile(node) {
@@ -116,8 +116,9 @@ function compileDirectives(node) {
 function getDirectives(node) {
   var directives = [];
 
+  // https://developer.mozilla.org/en-US/docs/Web/API/Node.nodeType
   switch (node.nodeType) {
-    case 1: // element node
+    case 1: // element node (visible tags plus <style>, <meta>)
       // first, appendDirective directive named after node, if it exists.
       appendDirective(node.nodeName.toLowerCase(), directives);
       getDirectivesFromAttributes(node, directives);

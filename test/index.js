@@ -1,7 +1,7 @@
 
 var template = require('tower-template');
+var content = require('tower-content');
 var directive = require('tower-directive');
-var scope = require('tower-scope');
 var assert = require('component-assert');
 var query = require('component-query');
 
@@ -9,11 +9,11 @@ describe('template', function(){
   beforeEach(directive.clear);
 
   it('should clone', function(){
-    scope.root().set('clonedDirective', 'Cloneable Directive Text');
+    content.root().set('clonedDirective', 'Cloneable Directive Text');
 
     var element = query('#should-clone');
     var fn = template(element);
-    var clone = fn.clone(scope.root());
+    var clone = fn.clone(content.root());
     assert(clone !== element);
     // clone should have new text
     assert('Cloneable Directive Text' === query('span', clone).textContent);
@@ -31,21 +31,21 @@ describe('template', function(){
     });
 
     var fn = template(document.body);
-    fn(scope('random').init({ foo: 'Foo', bar: 'Bar' }));
+    fn(content('random').init({ foo: 'Foo', bar: 'Bar' }));
 
     assert('Foo' === query('#should-execute-all').title);
     assert('Bar' === query('#should-execute-all span').textContent);
   });
 
-  it('should use `scope("root")` if none is passed in', function(){
+  it('should use `content("root")` if none is passed in', function(){
     directive('data-html', function(scope, element, attr){
       element.innerHTML = scope.get(attr.value);
     });
 
-    scope.root().set('foo', 'Hello World');
+    content.root().set('foo', 'Hello World');
 
     var fn = template(document.body);
-    fn(scope.root());
+    fn(content.root());
 
     assert('Hello World' === query('#should-use-root-scope').innerHTML);
   });
@@ -53,7 +53,7 @@ describe('template', function(){
   describe('directives', function(){
     it('should have `data-text`', function(){
       assert(true === directive.defined('data-text'));
-      var root = scope.root();
+      var root = content.root();
       root.set('textDirective', 'Text Directive');
       var fn = template(query('#directives'));
       fn(root);
@@ -63,7 +63,7 @@ describe('template', function(){
     // XXX: should iterate through all to test them all.
     it('should have `data-[attr]`', function(){
       assert(true === directive.defined('data-title'));
-      var root = scope.root();
+      var root = content.root();
       root.set('attrDirective', 'Attribute Directive');
       var fn = template(query('#directives'));
       fn(root);
@@ -73,13 +73,13 @@ describe('template', function(){
     it('should have event directives `on-[event]`', function(done){
       assert(true === directive.defined('on-click'));
 
-      scope('root')
+      content('root')
         .action('eventDirective', function(){
           done();
         });
 
       var fn = template(query('#directives'));
-      fn(scope.root());
+      fn(content.root());
 
       var event = document.createEvent('UIEvent');
       event.initUIEvent('click', true, true);
@@ -92,14 +92,14 @@ describe('template', function(){
 
   describe('data-scope', function(){
     it('should create a nested scope', function(){
-      assert(false === scope.defined('custom'));
-      scope('custom')
+      assert(false === content.defined('custom'));
+      content('custom')
         .attr('foo', 'string', 'Custom Scope Property!');
       var fn = template(query('#custom-scope'));
       //var customScope = scope('custom').init();
       //console.log(customScope.foo)
       //console.log(customScope.get('foo'));
-      fn(scope.root());
+      fn(content.root());
       assert('Custom Scope Property!' === query('#custom-scope span').textContent);
     });
   });
@@ -107,11 +107,11 @@ describe('template', function(){
   it('should allow passing new elements to existing template', function(){
     var element = query('#existing-element');
     var fn = template(element);
-    scope.root().set('helloWorld', 'Hello World!');
-    fn(scope.root());
+    content.root().set('helloWorld', 'Hello World!');
+    fn(content.root());
     assert('Hello World!' === element.textContent);
     element = query('#new-element');
-    fn(scope.root(), element);
+    fn(content.root(), element);
     assert('Hello World!' === element.textContent);
   });
 
