@@ -1,6 +1,6 @@
 # Tower Template
 
-[![Build Status](https://travis-ci.org/tower/client-view.png)](https://travis-ci.org/tower/client-view)
+Client-side reactive templates (just plain DOM node manipulation, no strings).
 
 ## Installation
 

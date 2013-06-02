@@ -2,7 +2,7 @@
   "name": "tower-template",
   "repo": "tower/template",
   "description": "Tower templates.",
-  "version": "0.0.1",
+  "version": "0.5.0pre",
   "keywords": [],
   "dependencies": {
     "tower/content": "*",
