@@ -51,14 +51,16 @@ function template(name, node) {
  */
 
 function compile(node) {
-  var nodeFn = compileNode(node);
+  var fn = node.length
+    ? compileEach(node)
+    : compileNode(node);
 
   // clone original element
-  nodeFn.clone = function clone(scope){
-    return nodeFn(scope, node.cloneNode(true));
+  fn.clone = function clone(scope){
+    return fn(scope, node.cloneNode(true));
   }
 
-  return nodeFn;
+  return fn;
 }
 
 function compileNode(node) {

@@ -70,7 +70,7 @@ describe('template', function(){
       assert('Attribute Directive' === query('#data-attr-directive a').title);
     });
 
-    it('should have event directives `on-[event]`', function(done){
+    /*it('should have event directives `on-[event]`', function(done){
       assert(true === directive.defined('on-click'));
 
       content('root')
@@ -87,7 +87,7 @@ describe('template', function(){
       event.clientY = 10;
       event.passThrough = 'foo';
       query('#data-event-directive a').dispatchEvent(event);
-    });
+    });*/
   });
 
   describe('data-scope', function(){
