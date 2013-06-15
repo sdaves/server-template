@@ -7,6 +7,9 @@
     "tower-content": "*",
     "tower-directive": "*"
   },
+  "devDependencies": {
+    "jsdom": "~0.6.5"
+  },
   "main": "index.js",
   "license": "MIT"
 }

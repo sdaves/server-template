@@ -25,6 +25,12 @@ exports.collection = {};
 exports.compile = compile;
 
 /**
+ * Expose `parse`.
+ */
+
+exports.parse = parse;
+
+/**
  * Compile a DOM element's directives to a function.
  *
  * @param {String} [name]
@@ -40,6 +46,16 @@ function template(name, node) {
   if (undefined === node) return exports.collection[name];
   // compile it
   return exports.collection[name] = compile(node);
+}
+
+/**
+ * Parse HTML string or, if HTMLNode, just return that.
+ *
+ * @param {Mixed} obj
+ */
+
+function parse(obj) {
+  
 }
 
 /**

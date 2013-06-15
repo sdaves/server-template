@@ -1,9 +1,19 @@
 
-var template = require('tower-template');
 var content = require('tower-content');
 var directive = require('tower-directive');
-var assert = require('component-assert');
-var query = require('component-query');
+var document = 'undefined' !== typeof window && document;
+
+if ('undefined' === typeof window) {
+  var template = require('..');
+  var assert = require('assert');
+  var jsdom = require('jsdom').jsdom;
+  var fs = require('fs');
+  var path = require('path');
+  document = jsdom(fs.readFileSync(path.join(__dirname, 'index.html')));
+} else {
+  var template = require('tower-template');
+  var assert = require('timoxley-assert'); 
+}
 
 describe('template', function(){
   beforeEach(directive.clear);
@@ -11,14 +21,14 @@ describe('template', function(){
   it('should clone', function(){
     content.root().set('clonedDirective', 'Cloneable Directive Text');
 
-    var element = query('#should-clone');
+    var element = document.querySelector('#should-clone');
     var fn = template(element);
     var clone = fn.clone(content.root());
     assert(clone !== element);
     // clone should have new text
-    assert('Cloneable Directive Text' === query('span', clone).textContent);
+    assert('Cloneable Directive Text' === clone.textContent.trim());
     // element should be unchanged
-    assert('' === query('span', element).textContent);
+    assert('' === element.textContent.trim());
   });
 
   it('should execute all', function(){
@@ -33,8 +43,8 @@ describe('template', function(){
     var fn = template(document.body);
     fn(content('random').init({ foo: 'Foo', bar: 'Bar' }));
 
-    assert('Foo' === query('#should-execute-all').title);
-    assert('Bar' === query('#should-execute-all span').textContent);
+    assert('Foo' === document.querySelector('#should-execute-all').title);
+    assert('Bar' === document.querySelector('#should-execute-all span').textContent);
   });
 
   it('should use `content("root")` if none is passed in', function(){
@@ -47,7 +57,7 @@ describe('template', function(){
     var fn = template(document.body);
     fn(content.root());
 
-    assert('Hello World' === query('#should-use-root-scope').innerHTML);
+    assert('Hello World' === document.querySelector('#should-use-root-scope').innerHTML);
   });
 
   describe('directives', function(){
@@ -55,9 +65,9 @@ describe('template', function(){
       assert(true === directive.defined('data-text'));
       var root = content.root();
       root.set('textDirective', 'Text Directive');
-      var fn = template(query('#directives'));
+      var fn = template(document.querySelector('#directives'));
       fn(root);
-      assert('Text Directive' === query('#data-text-directive span').textContent);
+      assert('Text Directive' === document.querySelector('#data-text-directive span').textContent);
     });
 
     // XXX: should iterate through all to test them all.
@@ -65,9 +75,9 @@ describe('template', function(){
       assert(true === directive.defined('data-title'));
       var root = content.root();
       root.set('attrDirective', 'Attribute Directive');
-      var fn = template(query('#directives'));
+      var fn = template(document.querySelector('#directives'));
       fn(root);
-      assert('Attribute Directive' === query('#data-attr-directive a').title);
+      assert('Attribute Directive' === document.querySelector('#data-attr-directive a').title);
     });
 
     /*it('should have event directives `on-[event]`', function(done){
@@ -95,29 +105,29 @@ describe('template', function(){
       assert(false === content.defined('custom'));
       content('custom')
         .attr('foo', 'string', 'Custom Scope Property!');
-      var fn = template(query('#custom-scope'));
+      var fn = template(document.querySelector('#custom-scope'));
       //var customScope = scope('custom').init();
       //console.log(customScope.foo)
       //console.log(customScope.get('foo'));
       fn(content.root());
-      assert('Custom Scope Property!' === query('#custom-scope span').textContent);
+      assert('Custom Scope Property!' === document.querySelector('#custom-scope span').textContent);
     });
   });
 
   it('should allow passing new elements to existing template', function(){
-    var element = query('#existing-element');
+    var element = document.querySelector('#existing-element');
     var fn = template(element);
     content.root().set('helloWorld', 'Hello World!');
     fn(content.root());
     assert('Hello World!' === element.textContent);
-    element = query('#new-element');
+    element = document.querySelector('#new-element');
     fn(content.root(), element);
     assert('Hello World!' === element.textContent);
   });
 
   it('should store templates by name', function(){
-    var fn1 = template('one', query('#name-one'));
-    var fn2 = template('two', query('#name-two'));
+    var fn1 = template('one', document.querySelector('#name-one'));
+    var fn2 = template('two', document.querySelector('#name-two'));
     assert(fn1 === template('one'));
     assert(fn2 === template('two'));
   });
