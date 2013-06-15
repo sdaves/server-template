@@ -1,3 +1,8 @@
+/**
+ * Module that handles Client-side reactive templates (just plain DOM node manipulation, no strings).
+ *
+ * @module template
+ */
 
 /**
  * Module dependencies.
@@ -33,9 +38,9 @@ exports.parse = parse;
 /**
  * Compile a DOM element's directives to a function.
  *
- * @param {String} [name]
- * @param {HTMLNode} node
- * @return {Function}
+ * @param {String} name The template's name.
+ * @param {HTMLNode} node The HTML node.
+ * @return {Function} The compiled template function.
  * @api public
  */
 
@@ -62,8 +67,9 @@ function parse(obj) {
  * Traverse `node` and children recursively,
  * and collect and execute directives.
  *
- * @param {DOMNode} node
+ * @param {HTMLNode} node
  * @param {Content} scope
+ * @return {Function} The compiled template function.
  */
 
 function compile(node) {
@@ -170,6 +176,9 @@ function getDirectivesFromAttributes(node, directives) {
 
 /**
  * Add directive.
+ *
+ * @param {String} name The directive's name.
+ * @param {String} directives The list of directives.
  */
 
 function appendDirective(name, directives) {
@@ -199,6 +208,9 @@ function createEachFn(fns) {
 /**
  * Creates a template function for node directives
  * in an isolated JS scope.
+ *
+ * @param {Array} fns Array of directive functions.
+ * @return {Function} A template function for node directives.
  */
 
 function createDirectivesFn(fns) {
