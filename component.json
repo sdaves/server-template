@@ -9,9 +9,8 @@
     "tower/directive": "*"
   },
   "development": {
-    "component/assert": "*",
-    "visionmedia/mocha": "*",
-    "component/query": "*"
+    "timoxley/assert": "*",
+    "visionmedia/mocha": "*"
   },
   "scripts": [
     "index.js"

@@ -73,9 +73,10 @@ function parse(obj) {
  */
 
 function compile(node) {
-  var fn = node.length
-    ? compileEach(node)
-    : compileNode(node);
+  // http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
+  var fn = node.nodeType
+    ? compileNode(node)
+    : compileEach(node);
 
   // clone original element
   fn.clone = function clone(scope){
