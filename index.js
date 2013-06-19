@@ -83,11 +83,15 @@ function compile(node) {
     return fn(scope, node.cloneNode(true));
   }
 
+  fn.clone2 = function(){
+    return node.cloneNode(true);
+  }
+
   return fn;
 }
 
 function compileNode(node) {
-  var directivesFn = compileDirectives(node);
+  var directivesFn = compileDirectives(node, nodeFn);
   
   // recursive
   var eachFn = node.childNodes
@@ -107,8 +111,9 @@ function compileNode(node) {
     if (directivesFn) scope = directivesFn(scope, returnNode);
 
     // recurse, apply directives to children.
+    //if (eachFn && returnNode.childNodes)
     if (eachFn && returnNode.childNodes)
-      eachFn(scope, returnNode.childNodes);
+      eachFn(scope, returnNode.childNodes, returnNode);
 
     return returnNode;
   }
@@ -118,21 +123,23 @@ function compileNode(node) {
 
 function compileEach(children) {
   var fns = [];
-  for (var i = 0, n = children.length; i < n; i++) {
+  // doesn't cache `length` b/c items can be removed
+  //for (var i = 0, n = children.length; i < n; i++) {
+  for (var i = 0; i < children.length; i++) {
     fns.push(compileNode(children[i]));
   }
 
   return createEachFn(fns);
 }
 
-function compileDirectives(node) {
+function compileDirectives(node, nodeFn) {
   var directives = getDirectives(node);
 
   if (!directives.length) return; // don't execute function if unnecessary.
 
   var fns = [];
   for (var i = 0, n = directives.length; i < n; i++) {
-    fns.push(directives[i].compile(node));
+    fns.push(directives[i].compile(node, nodeFn));
   }
 
   return createDirectivesFn(fns);
@@ -196,7 +203,7 @@ function appendDirective(name, directives) {
 function createEachFn(fns) {
   var n = fns.length, i;
 
-  function eachFn(scope, children) {
+  function eachFn(scope, children, returnNode) {
     for (i = 0; i < n; i++) {
       // XXX: not sure this is correct.
       fns[i](scope, children[i]);
