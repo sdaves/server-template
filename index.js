@@ -92,9 +92,10 @@ function compile(node) {
 
 function compileNode(node) {
   var directivesFn = compileDirectives(node, nodeFn);
+  var terminal = directivesFn && directivesFn.terminal;
   
   // recursive
-  var eachFn = node.childNodes
+  var eachFn = !terminal && node.childNodes
     ? compileEach(node.childNodes)
     : undefined;
 
@@ -137,12 +138,20 @@ function compileDirectives(node, nodeFn) {
 
   if (!directives.length) return; // don't execute function if unnecessary.
 
+  var terminal = false;
   var fns = [];
   for (var i = 0, n = directives.length; i < n; i++) {
-    fns.push(directives[i].compile(node, nodeFn));
+    var fn = directives[i].compile(node, nodeFn);
+    fns.push(fn);
+    terminal = directives[i]._terminal;
+    if (terminal) break;
   }
 
-  return createDirectivesFn(fns);
+  var directivesFn = createDirectivesFn(fns);
+
+  directivesFn.terminal = terminal;
+
+  return directivesFn;
 }
 
 function getDirectives(node) {

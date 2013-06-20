@@ -1,7 +1,7 @@
 {
   "name": "tower-template",
   "description": "Tower templates.",
-  "version": "0.1.0pre2",
+  "version": "0.1.0pre3",
   "keywords": [],
   "dependencies": {
     "tower-content": "*",
