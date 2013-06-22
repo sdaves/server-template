@@ -54,6 +54,16 @@ function template(name, node) {
 }
 
 /**
+ * Check if template with `name` exists.
+ *
+ * @api public
+ */
+
+exports.has = function(name){
+  return !!exports.collection.hasOwnProperty(name);
+};
+
+/**
  * Parse HTML string or, if HTMLNode, just return that.
  *
  * @param {Mixed} obj
