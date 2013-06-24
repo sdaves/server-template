@@ -1,15 +1,19 @@
 {
   "name": "tower-template",
   "description": "Tower templates.",
-  "version": "0.1.0pre3",
-  "keywords": [],
+  "version": "0.1.0",
+  "keywords": ["template", "templates", "html"],
   "dependencies": {
-    "tower-content": "*",
-    "tower-directive": "*"
+    "tower-directive": "0.1.0"
   },
   "devDependencies": {
-    "jsdom": "~0.6.5"
+    "jsdom": "~0.6.5",
+    "tower-content": "0.1.0"
   },
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type" : "git",
+    "url" : "http://github.com/tower/template.git"
+  }
 }

@@ -1,14 +1,8 @@
-/**
- * Module that handles Client-side reactive templates (just plain DOM node manipulation, no strings).
- *
- * @module template
- */
 
 /**
  * Module dependencies.
  */
 
-var content = require('tower-content');
 var directive = require('tower-directive');
 
 /**
@@ -36,7 +30,9 @@ exports.compile = compile;
 exports.parse = parse;
 
 /**
- * Compile a DOM element's directives to a function.
+ * Client-side reactive templates (just plain DOM node manipulation, no strings).
+ *
+ * @module template
  *
  * @param {String} name The template's name.
  * @param {HTMLNode} node The HTML node.
