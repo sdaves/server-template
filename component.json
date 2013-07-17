@@ -2,10 +2,10 @@
   "name": "tower-template",
   "repo": "tower/template",
   "description": "Tower templates.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "keywords": [],
   "dependencies": {
-    "tower/directive": "0.1.0"
+    "tower/directive": "0.1.1"
   },
   "development": {
     "timoxley/assert": "*",
