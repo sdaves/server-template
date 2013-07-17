@@ -1,14 +1,14 @@
 {
   "name": "tower-template",
   "description": "Tower templates.",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "keywords": ["template", "templates", "html"],
   "dependencies": {
-    "tower-directive": "0.1.0"
+    "tower-directive": "0.1.2"
   },
   "devDependencies": {
     "jsdom": "~0.6.5",
-    "tower-content": "0.1.0"
+    "tower-content": "0.1.2"
   },
   "main": "index.js",
   "license": "MIT",

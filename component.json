@@ -2,15 +2,15 @@
   "name": "tower-template",
   "repo": "tower/template",
   "description": "Tower templates.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "keywords": [],
   "dependencies": {
-    "tower/directive": "0.1.1"
+    "tower/directive": "0.1.2"
   },
   "development": {
     "timoxley/assert": "*",
     "visionmedia/mocha": "*",
-    "tower/content": "0.1.0"
+    "tower/content": "0.1.2"
   },
   "scripts": [
     "index.js"
