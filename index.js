@@ -205,7 +205,7 @@ function getDirectivesFromAttributes(node, directives) {
  */
 
 function appendDirective(name, directives) {
-  if (directive.defined(name)) {
+  if (directive.has(name)) {
     directives.push(directive(name));
   }
 }
@@ -240,10 +240,8 @@ function createDirectivesFn(fns) {
   var n = fns.length, i;
 
   function directivesFn(scope, node) {
-    // XXX: maybe we can collect the directives in reverse
-    //      and then use a `while` loop.
     for (i = 0; i < n; i++) {
-      scope = fns[i](node, scope);
+      scope = fns[i](scope, node);
     }
 
     return scope;
