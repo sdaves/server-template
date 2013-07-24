@@ -19,18 +19,6 @@ exports = module.exports = template;
 exports.collection = {};
 
 /**
- * Expose `compile`.
- */
-
-exports.compile = compile;
-
-/**
- * Expose `parse`.
- */
-
-exports.parse = parse;
-
-/**
  * Client-side reactive templates (just plain DOM node manipulation, no strings).
  *
  * @module template
@@ -42,6 +30,9 @@ exports.parse = parse;
  */
 
 function template(name, node) {
+  if ('function' === typeof node)
+    return exports.collection[name] = node;
+
   // if `name` is a DOM node, arguments are shifted by 1
   if ('string' !== typeof name) return compile(name);
   // only 1 argument
@@ -59,16 +50,6 @@ function template(name, node) {
 exports.has = function(name){
   return !!exports.collection.hasOwnProperty(name);
 };
-
-/**
- * Parse HTML string or, if HTMLNode, just return that.
- *
- * @param {Mixed} obj
- */
-
-function parse(obj) {
-  
-}
 
 /**
  * Traverse `node` and children recursively,
