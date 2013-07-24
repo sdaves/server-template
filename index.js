@@ -92,7 +92,7 @@ function compile(node) {
     return nodeFn(scope, el);
   }
 
-  return nodeFn;
+  return fn;
 }
 
 function compileNode(node) {
