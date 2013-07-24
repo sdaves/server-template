@@ -4,6 +4,7 @@
  */
 
 var directive = require('tower-directive');
+var content = require('tower-content');
 
 /**
  * Expose `template`.
@@ -80,20 +81,18 @@ function parse(obj) {
 
 function compile(node) {
   // http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
-  var fn = node.nodeType
+  var nodeFn = node.nodeType
     ? compileNode(node)
     : compileEach(node);
 
-  // clone original element
-  fn.clone = function clone(scope){
-    return fn(scope, node.cloneNode(true));
+  function fn(scope, el) {
+    if (!content.is(scope))
+      scope = content('anonymous').init(scope);
+
+    return nodeFn(scope, el);
   }
 
-  fn.clone2 = function(){
-    return node.cloneNode(true);
-  }
-
-  return fn;
+  return nodeFn;
 }
 
 function compileNode(node) {
