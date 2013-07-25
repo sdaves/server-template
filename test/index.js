@@ -19,16 +19,12 @@ describe('template', function(){
   //beforeEach(directive.clear);
 
   it('should execute all', function(){
-    directive('data-text', function(el){
-      return function exec(scope, el) {
-        el.textContent = scope.get(el.getAttribute('data-text')); 
-      }
+    directive('data-text', function(scope, el){
+      el.textContent = scope.get(el.getAttribute('data-text')); 
     });
 
     directive('data-title', function(scope, el){
-      return function exec(scope, el) {
-        el.setAttribute('title', scope.get(el.getAttribute('data-title'))); 
-      }
+      el.setAttribute('title', scope.get(el.getAttribute('data-title')));
     });
 
     var el = document.querySelector('#should-execute-all');
