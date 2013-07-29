@@ -1,11 +1,11 @@
 {
   "name": "tower-template",
   "description": "Tower templates.",
-  "version": "0.1.3",
+  "version": "0.1.5",
   "keywords": ["template", "templates", "html"],
   "dependencies": {
-    "tower-directive": "0.1.3",
-    "tower-content": "0.1.3"
+    "tower-directive": "0.1.4",
+    "tower-content": "0.1.4"
   },
   "devDependencies": {
     "jsdom": "~0.6.5"
