@@ -1,0 +1,11 @@
+{
+  "name": "tower-view",
+  "version": "0.0.1",
+  "author": "Daniel Fagnan <dnfagnan@gmail.com>",
+  "dependencies": {
+
+  },
+  "engines": {
+    "node": "0.11.x"
+  }
+}
