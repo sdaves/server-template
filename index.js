@@ -5,6 +5,10 @@
 var fs = require('fs');
 var path = require('path');
 var stackTrace = require('stack-trace');
+// XXX: This is all going ot be moved away from this module.
+var jsdom = require('jsdom');
+var template = require('tower-template');
+var content = require('tower-content');
 
 /**
  * Helper
@@ -53,6 +57,33 @@ exports.config = function(key, val) {
 function view(next) {
   return function * () {
     var self = this;
+
+    // Setup the new content
+    this.content = content().init({});
+    //console.log(this.content);
+    this.scope = Proxy.create({
+      set: function(handler, key, val) {
+        self.content.attrs[key] = val;
+      },
+      get: function(handler, key) {
+        return self.content.attrs[key];
+      },
+      enumerate: function() {
+
+      },
+      getOwnPropertyNames: function() {
+        return Object.keys(self.content.attrs)
+      },
+      getOwnPropertyDescriptor: function(name) {
+        var desc = Object.getOwnPropertyDescriptor(self.content.attrs, name);
+        if (desc !== undefined) { desc.configurable = true; }
+        return desc;
+      },
+      keys: function() {
+        return Object.keys(self.content.attrs);
+      }
+    });
+
     this.render = function(file, options) {
       return function * go() {
         var originFile = file;
@@ -92,7 +123,12 @@ function view(next) {
             } else {
               self.code = 200;
               self.type = 'text/html';
-              self.body = result;
+
+              jsdom.env(result, function(err, window){
+                var fn = template(window.document);
+                fn(self.content);
+                self.body = window.document.documentElement.outerHTML;
+              });
             }
           }
         }

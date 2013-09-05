@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "author": "Daniel Fagnan <dnfagnan@gmail.com>",
   "dependencies": {
-    "stack-trace": "*"
+    "stack-trace": "*",
+    "jsdom": "git://github.com/haraldrudell/jsdom.git",
+    "tower-template": "*",
+    "tower-content": "*"
   },
   "engines": {
     "node": "0.11.x"
