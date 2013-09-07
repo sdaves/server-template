@@ -6,7 +6,9 @@
     "stack-trace": "*",
     "jsdom": "git://github.com/haraldrudell/jsdom.git",
     "tower-template": "*",
-    "tower-content": "*"
+    "tower-content": "*",
+    "tower-directive": "*",
+    "co-render": "*"
   },
   "engines": {
     "node": "0.11.x"

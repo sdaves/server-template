@@ -6,11 +6,14 @@ var fs = require('fs');
 var path = require('path');
 var stackTrace = require('stack-trace');
 // XXX: This is all going ot be moved away from this module.
-var jsdom = require('jsdom');
+var jsdom = require('jsdom').jsdom;
 var template = require('tower-template');
 var content = require('tower-content');
-var document = jsdom.jsdom('');
-var window = document.createWindow();
+var directive = require('tower-directive');
+
+directive('data-world', function(scope, el, attr){
+  console.log(1);
+});
 
 /**
  * Helper
@@ -256,12 +259,18 @@ function* engine(path, options, content) {
   } catch (e) {}
 
   if (file) {
-    document.innerHTML = file;
+    var document = jsdom(file);
+    var window = document.parentWindow;
+
     var fn = template(document);
     fn(content);
+
+    var html = window.document.innerHTML;
+    window.close();
+
     return {
       error: false,
-      body: document.outerHTML,
+      body: html,
       type: 'text/html'
     };
   }
