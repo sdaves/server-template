@@ -8,7 +8,8 @@
     "tower-template": "*",
     "tower-content": "*",
     "tower-directive": "*",
-    "co-render": "*"
+    "co-render": "*",
+    "consolidate": "*"
   },
   "engines": {
     "node": "0.11.x"
