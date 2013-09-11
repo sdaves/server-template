@@ -1,4 +1,5 @@
 var view = require('..');
+var agent = require('webkit-devtools-agent');
 
 var time = new Date().getTime();
 
