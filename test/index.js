@@ -20,9 +20,15 @@ describe('view', function(){
       world: "Wonderful"
     });
 
-    console.log(r);
-
     assert(r === '<html><head></head><body><div data-title="world" title="Wonderful"></div></body></html>');
+  });
+
+  it('should compile nested node', function(){
+    var r = view('<html><div><span data-text="h"></span></div></html>', {
+      h: 123
+    });
+
+    assert(r === '<html><head></head><body><div><span data-text="h">123</span></div></body></html>');
   });
 
 });
