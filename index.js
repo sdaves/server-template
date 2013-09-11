@@ -5,9 +5,17 @@
 var dom = require('tower-server-dom');
 var content = require('tower-content');
 var directive = require('tower-directive');
+var Attribute = dom.Attribute;
 
 directive('data-text', function(scope, el, attr) {
   el.textContent = scope.data[attr.val];
+});
+
+directive('data-title', function(scope, el, attr){
+  var att = new Attribute();
+  att.name = 'title';
+  att.value = scope.data[attr.val];
+  el.attributes.push(att);
 });
 
 /**
@@ -28,24 +36,17 @@ exports.compile = function(document, scope) {
 
   while (queue.length > 0) {
     var node = queue.pop();
-    // Directives.
-    var _directives = [];
 
     if (node.nodeType === 1) {
       // Only try and compile directives that we have
       for (var i = 0; i < node.attributes.length; i++) {
         var a = node.attributes[i];
         if (directive.collection[a.name]) {
-          _directives.push(a.name);
+          var e = directive(a.name).compile(node, function() {
+
+          })(scope, node);
         }
       }
-    }
-
-    for (var j = 0; j < _directives.length; j++) {
-      var d = _directives[j];
-      var e = directive(d).compile(node, function() {
-        console.log(1);
-      })(scope, node);
     }
 
     if (node.childNodes) {
