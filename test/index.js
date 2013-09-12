@@ -30,5 +30,3 @@ describe('view', function(){
 
     assert(r === '<html><head></head><body><div><span data-text="h">123</span></div></body></html>');
   });
-
-});
