@@ -9,7 +9,8 @@ var Attribute = dom.Attribute;
 
 directive('data-text', function(scope, el, attr) {
   //console.log(scope);
-  el.textContent = scope.attrs[attr.val];
+  console.log(scope);
+  el.textContent = scope.data[attr.val];
 });
 
 directive('data-title', function(scope, el, attr){

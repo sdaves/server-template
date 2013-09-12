@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "author": "Daniel Fagnan <dnfagnan@gmail.com>",
   "dependencies": {
-    "tower-template": "*",
     "tower-content": "*",
-    "tower-directive": "*"
+    "tower-directive": "*",
+    "tower-server-dom": "*"
   },
   "devDependencies": {
   }
