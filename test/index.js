@@ -30,3 +30,13 @@ describe('view', function(){
 
     assert(r === '<html><head></head><body><div><span data-text="h">123</span></div></body></html>');
   });
+
+  it('should compile nested node', function(){
+    var r = view('<html><h1>h</h1><span data-text="h"></span></html>', {
+      h: 123
+    });
+
+    assert(r === '<html><head></head><body><h1>h</h1><span data-text="h">123</span></body></html>');
+  });
+
+});

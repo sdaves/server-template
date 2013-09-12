@@ -8,8 +8,6 @@ var directive = require('tower-directive');
 var Attribute = dom.Attribute;
 
 directive('data-text', function(scope, el, attr) {
-  //console.log(scope);
-  console.log(scope);
   el.textContent = scope.data[attr.val];
 });
 

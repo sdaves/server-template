@@ -5,7 +5,8 @@
   "dependencies": {
     "tower-content": "*",
     "tower-directive": "*",
-    "tower-server-dom": "*"
+    "tower-server-dom": "*",
+    "part-async-series": "*"
   },
   "devDependencies": {
   }
