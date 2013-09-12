@@ -8,6 +8,5 @@
     "tower-directive": "*"
   },
   "devDependencies": {
-    "webkit-devtools-agent": "~0.1.2"
   }
 }

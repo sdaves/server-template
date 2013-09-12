@@ -8,7 +8,8 @@ var directive = require('tower-directive');
 var Attribute = dom.Attribute;
 
 directive('data-text', function(scope, el, attr) {
-  el.textContent = scope.data[attr.val];
+  //console.log(scope);
+  el.textContent = scope.attrs[attr.val];
 });
 
 directive('data-title', function(scope, el, attr){
@@ -43,7 +44,6 @@ exports.compile = function(document, scope) {
         var a = node.attributes[i];
         if (directive.collection[a.name]) {
           var e = directive(a.name).compile(node, function() {
-
           })(scope, node);
         }
       }
